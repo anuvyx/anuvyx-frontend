@@ -1,0 +1,55 @@
+Copyright © 2025 Anuvyx S.A.S.  
+Todos los derechos reservados.
+
+LICENCIA DE USO LIMITADO DE CÓDIGO PROPIETARIO  
+
+AL DESCARGAR, CLONAR, VISUALIZAR O CONTRIBUIR A ESTE REPOSITORIO, USTED ACEPTA LOS TÉRMINOS DE ESTA LICENCIA.
+
+1. Definiciones  
+   1.1 “Titular” es Anuvyx S.A.S, con domicilio en Bogotá D.C., Colombia.  
+   1.2 “Código” significa todo el código fuente, binarios, documentación y otros archivos contenidos en este repositorio de GitHub.  
+   1.3 “Usted” o “Licenciatario” significa toda persona física o jurídica que acceda al Código.
+
+2. Concesión de licencia limitada  
+   Se concede a Usted una licencia mundial, no exclusiva, intransferible y revocable para:  
+   a) Clonar o descargar el repositorio **únicamente** con fines de lectura, auditoría o evaluación interna sin fines de lucro.  
+   b) Ejecutar el Código internamente para probarlo o revisarlo.  
+   **No se concede ningún otro derecho** (incluidos, de manera enunciativa mas no limitativa, derechos de copia pública, redistribución, sublicencia, uso comercial, ingeniería inversa o creación de obras derivadas).
+
+3. Restricciones  
+   - Queda prohibida la redistribución, pública o privada, total o parcial, del Código o de cualquier modificación del mismo.  
+   - Queda prohibido el uso del Código, sus resultados o cualquier derivado con fines comerciales o productivos sin autorización escrita del Titular.  
+   - Queda prohibida la publicación de _forks_ públicos o la exposición del Código en repositorios distintos a éste.  
+   - No podrá eliminar ni alterar avisos de copyright, marcas, logotipos ni atribuciones.
+
+4. Contribuciones externas  
+   El Titular **sí acepta _pull requests_** bajo las siguientes condiciones:  
+   - Al enviar una contribución, Usted declara y garantiza que tiene derecho a otorgarla y **cede irrevocablemente** al Titular todos los derechos de propiedad intelectual sobre dicha contribución (cesión plena).  
+   - El Titular podrá integrar, modificar, licenciar o sublicenciar la contribución sin obligación de atribución, compensación ni reconocimiento adicional.
+
+5. Confidencialidad  
+   Toda información técnica, de negocio o de seguridad contenida en el Código se considera confidencial. Usted se obliga a mantenerla en secrecía y a no divulgarla por un periodo de cinco (5) años a partir de cada acceso.
+
+6. Ausencia de garantías  
+   EL CÓDIGO SE PROPORCIONA “TAL CUAL”, SIN GARANTÍAS DE NINGÚN TIPO, EXPRESAS O IMPLÍCITAS, INCLUIDAS ENTRE OTRAS LAS GARANTÍAS DE COMERCIABILIDAD, ADECUACIÓN A UN PROPÓSITO PARTICULAR O AUSENCIA DE INFRACCIÓN.
+
+7. Limitación de responsabilidad  
+   En ningún caso el Titular será responsable ante Usted por daños directos, indirectos, incidentales, especiales o consecuentes (incluida la pérdida de datos o ganancias), aun si se le hubiera advertido de la posibilidad de tales daños. La responsabilidad total acumulada del Titular frente a Usted no excederá cien dólares (USD 100).
+
+8. Duración y terminación  
+   Esta licencia entra en vigor al primer acceso y continuará vigente hasta que se rescinda:  
+   - Automáticamente, si Usted incumple cualquier disposición.  
+   - Por decisión del Titular, mediante notificación razonable por escrito o a través de la plataforma GitHub.  
+   A la terminación, Usted debe destruir todas las copias locales del Código y derivaciones, excepto lo permitido por ley imperativa.
+
+9. Ley aplicable y jurisdicción  
+   Esta licencia se regirá e interpretará de conformidad con las leyes de la República de Colombia. Toda controversia se someterá a los jueces competentes de Bogotá D.C., renunciando las partes a cualquier otro fuero que pudiera corresponderles.
+
+10. Modificaciones  
+    El Titular podrá actualizar esta licencia publicando una nueva versión en el repositorio. El uso continuado del Código constituirá aceptación de la versión modificada.
+
+11. Acuerdo completo  
+    Esta licencia constituye el acuerdo íntegro entre las partes y sustituye cualesquiera acuerdos previos. Si alguna cláusula se declara nula, las restantes conservarán plena validez.
+
+PARA SOLICITAR PERMISOS COMERCIALES, OEM, DE DISTRIBUCIÓN O CUALQUIER OTRO USO NO CUBIERTO, ESCRIBA A: **anuvyx.ceo@gmail.com**
+

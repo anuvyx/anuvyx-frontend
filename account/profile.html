@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Perfil de Usuario - Anuvyx</title>
+
+  <link rel="stylesheet" href="../styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/x-icon" href="../static/logo/favicon.ico" />
+
+  <!-- Estilos específicos para el perfil -->
+  <style>
+    .profile-section {
+      padding: 120px 2rem 2rem;
+      min-height: 100vh;
+      background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)),
+        url("../static/index/ia-banner.avif");
+      background-size: cover;
+      background-position: center;
+    }
+    .profile-container {
+      max-width: 1200px;
+      margin: 50px auto;
+      background: rgba(0, 0, 0, 0.7);
+      border-radius: 15px;
+      padding: 2rem;
+      box-shadow: 0 4px 15px rgba(212, 169, 68);
+    }
+    .profile-header {
+      text-align: center;
+      margin-bottom: 2rem;
+      position: relative;
+    }
+    .profile-picture {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      margin: 0 auto 1rem;
+      background: url("../static/icons/user-icon-black.png") center/cover;
+      position: relative;
+      border: 3px solid #0071e3;
+    }
+    .edit-overlay {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 0.5rem;
+      border-radius: 50%;
+      max-width: 42px;
+      max-height: 42px;
+      cursor: default;
+    }
+    .profile-header button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      margin: 1rem;
+    }
+    .profile-grid {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 2rem;
+    }
+    .profile-sidebar {
+      border-right: 1px solid #333;
+      padding-right: 2rem;
+    }
+    .profile-info h2 {
+      color: var(--color-border-gold);
+      margin-bottom: 1.5rem;
+    }
+    .info-group {
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+    .info-group label {
+      display: block;
+      color: #888;
+      margin-bottom: 0.5rem;
+    }
+    .info-group input,
+    .info-group select {
+      width: 100%;
+      padding: 0.8rem;
+      background: #111;
+      border: 1px solid #333;
+      color: #fff;
+      border-radius: 8px;
+      transition: all 0.3s;
+    }
+    .info-group input:focus,
+    .info-group select:focus {
+      border-color: #0071e3;
+      outline: none;
+    }
+    .toggle-password-icon {
+      position: absolute;
+      top: 55%;
+      right: 12px;
+      transform: translateY(-50%);
+      cursor: pointer;
+    }
+    .security-section {
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid #333;
+    }
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    .disabled-input {
+      background: #222 !important;
+      cursor: not-allowed;
+    }
+    .hidden {
+      display: none;
+    }
+    @media (max-width: 768px) {
+      .profile-grid {
+        grid-template-columns: 1fr;
+      }
+      .profile-sidebar {
+        border-right: none;
+        padding-right: 0;
+        border-bottom: 1px solid #333;
+        padding-bottom: 2rem;
+      }
+      .profile-container {
+        padding: 1.5rem;
+      }
+      .profile-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .profile-header button {
+        position: static;
+        order: -1;
+        margin-bottom: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Top Bar -->
+  <div
+    class="top-bar"
+    onclick="window.location.reload()"
+    style="cursor: pointer"
+    title="Recargar"
+  >
+    <a href="../index.html#hero" class="company-name">ANUVYX</a>
+  </div>
+
+  <!-- Navigation Bar -->
+  <nav class="nav">
+    <a href="../index.html#hero" class="nav-logo">
+      <img
+        src="../static/logo/Anuvyx-White-NB.PNG"
+        alt="Logo Anuvyx"
+        class="logo-img"
+        title="Inicio"
+      />
+    </a>
+    <div class="menu-toggle"><span></span><span></span><span></span></div>
+    <div class="nav-links">
+      <a href="../index.html#ia" class="nav-link">IA</a>
+      <a href="../index.html#iot" class="nav-link">IoT</a>
+      <a href="../index.html#blockchain" class="nav-link">Blockchain</a>
+      <a href="../index.html#metaverso" class="nav-link">Metaverso</a>
+      <a href="../index.html#energias" class="nav-link">Energías Limpias</a>
+    </div>
+  </nav>
+
+  <!-- Main Profile Content -->
+  <main class="profile-section">
+    <div class="profile-container">
+      <div class="profile-header">
+        <div class="profile-picture">
+          <div class="edit-overlay">
+            <!-- Cámara outline -->
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="26"
+              height="26"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"
+              ></path>
+              <circle cx="12" cy="13" r="4"></circle>
+            </svg>
+          </div>
+        </div>
+        <h1>Perfil de Usuario</h1>
+        <button id="editProfileBtn" class="cta-button">Editar Perfil</button>
+      </div>
+
+      <div class="profile-grid">
+        <!-- Sidebar -->
+        <div class="profile-sidebar">
+          <div class="profile-info">
+            <h2>Información Básica</h2>
+
+            <div class="info-group">
+              <label>Nombre completo</label>
+              <input
+                id="userName"
+                type="text"
+                disabled
+                readonly
+                class="disabled-input"
+              />
+            </div>
+
+            <div class="info-group">
+              <label>Correo electrónico</label>
+              <input
+                id="userEmail"
+                type="email"
+                disabled
+                readonly
+                class="disabled-input"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Content -->
+        <div class="profile-content">
+          <div class="profile-info">
+            <h2>Detalles Personales</h2>
+
+            <div class="info-group">
+              <label>Fecha de nacimiento</label>
+              <input
+                id="userDOB"
+                type="date"
+                disabled
+                class="disabled-input"
+              />
+            </div>
+          </div>
+
+          <!-- Seguridad -->
+          <div class="security-section">
+            <h2>Seguridad</h2>
+
+            <div class="info-group">
+              <label>Contraseña actual</label>
+              <input
+                id="currentPassword"
+                type="password"
+                disabled
+                class="disabled-input"
+                placeholder="••••••••"
+              />
+            </div>
+
+            <div class="info-group">
+              <label>Nueva contraseña</label>
+              <input
+                id="newPassword"
+                type="password"
+                disabled
+                class="disabled-input"
+                placeholder="••••••••"
+                pattern="(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}"
+                title="Mínimo 8 caracteres, al menos una mayúscula, un número y un carácter especial (!@#$%^&*)"
+              />
+            </div>
+
+            <div class="info-group">
+              <label>Confirmar nueva contraseña</label>
+              <input
+                id="confirmNewPassword"
+                type="password"
+                disabled
+                class="disabled-input"
+                placeholder="••••••••"
+                pattern="(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}"
+                title="Mínimo 8 caracteres, al menos una mayúscula, un número y un carácter especial (!@#$%^&*)"
+              />
+            </div>
+
+            <div id="saveCancelButtons" class="button-group hidden">
+              <button id="saveChangesBtn" class="cta-button">
+                Guardar Cambios
+              </button>
+              <button
+                id="cancelChangesBtn"
+                class="cta-button"
+                style="background: #333"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Danger zone -->
+      <div class="security-section">
+        <h2>Zona Peligrosa</h2>
+        <div class="button-group">
+          <button
+            id="deleteAccountBtn"
+            class="cta-button"
+            style="background: rgba(255, 0, 0, 0.9)"
+          >
+            Eliminar Cuenta
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p class="copyright">
+      &copy; 2025 Anuvyx. Todos los derechos reservados.
+    </p>
+  </footer>
+
+  <script>
+    /* ============================ SESSION CHECK =========================== */
+    if (localStorage.getItem("isLoggedIn") !== "true") {
+      alert("Acceso denegado. Por favor, inicia sesión primero.");
+      window.location.href = "../index.html#login";
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      /* ========================= INITIAL DATA LOAD ========================= */
+      const userData = JSON.parse(localStorage.getItem("userData") || "{}");
+      if (!userData.email) {
+        alert("Datos de usuario no encontrados. Por favor, inicia sesión.");
+        window.location.href = "../index.html#login";
+        return;
+      }
+
+      /* ---- Basic info ---- */
+      document.getElementById("userName").value = userData.name || "";
+      document.getElementById("userEmail").value = userData.email || "";
+
+      /* ---- Birth date ---- */
+      const userDOBField = document.getElementById("userDOB");
+      if (userData.birthDate) {
+        const isoDate =
+          new Date(userData.birthDate).toISOString().split("T")[0];
+        userDOBField.value = isoDate;
+      }
+
+      /* =========================== EDIT PROFILE =========================== */
+      const editBtn = document.getElementById("editProfileBtn");
+      const saveCancel = document.getElementById("saveCancelButtons");
+
+      const fields = [
+        document.getElementById("userName"),
+        userDOBField,
+        document.getElementById("currentPassword"),
+        document.getElementById("newPassword"),
+        document.getElementById("confirmNewPassword"),
+      ];
+
+      let editing = false;
+
+      editBtn.addEventListener("click", () => {
+        editing = !editing;
+
+        fields.forEach((f) => {
+          f.disabled = !editing;
+          if (f.tagName === "INPUT") f.readOnly = !editing;
+          f.classList.toggle("disabled-input", !editing);
+        });
+
+        saveCancel.classList.toggle("hidden", !editing);
+        editBtn.textContent = editing ? "Cancelar edición" : "Editar Perfil";
+
+        if (!editing) location.reload();
+      });
+
+      document
+        .getElementById("cancelChangesBtn")
+        .addEventListener("click", () => location.reload());
+
+      /* ========================= SAVE CHANGES ========================== */
+      document
+        .getElementById("saveChangesBtn")
+        .addEventListener("click", async () => {
+          const updatedName = document.getElementById("userName").value.trim();
+          const updatedDOB = userDOBField.value;
+          const currentPassword =
+            document.getElementById("currentPassword").value;
+          const newPassword = document.getElementById("newPassword").value;
+          const confirmNewPassword =
+            document.getElementById("confirmNewPassword").value;
+
+          if (newPassword && newPassword !== confirmNewPassword) {
+            return alert("La nueva contraseña y su confirmación no coinciden.");
+          }
+
+          const regex = /(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}/;
+          if (newPassword && !regex.test(newPassword)) {
+            return alert("La nueva contraseña no cumple los requisitos.");
+          }
+
+          const payload = {
+            name: updatedName,
+            birthDate: updatedDOB,
+          };
+
+          if (newPassword) {
+            payload.currentPassword = currentPassword;
+            payload.newPassword = newPassword;
+          }
+
+          try {
+            const token = localStorage.getItem("authToken");
+            if (!token) {
+              alert("No estás autenticado. Inicia sesión nuevamente.");
+              window.location.href = "../index.html#login";
+              return;
+            }
+
+            const res = await fetch(
+              "https://anuvyx-backend.vercel.app/api/update-profile",
+              {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json",
+                  "Authorization": "Bearer " + token,
+                },
+                body: JSON.stringify(payload),
+              }
+            );
+            const result = await res.json();
+            if (!res.ok) throw new Error(result.error || "Error al actualizar.");
+
+            /* ---- Update localStorage ---- */
+            const newUserData = {
+              ...userData,
+              name: updatedName,
+              birthDate: updatedDOB,
+            };
+            localStorage.setItem("userData", JSON.stringify(newUserData));
+
+            alert("Perfil actualizado correctamente.");
+            location.reload();
+          } catch (err) {
+            console.error("Update profile error:", err);
+            alert("No se pudo actualizar el perfil: " + err.message);
+          }
+        });
+
+      /* ===================== PASSWORD VISIBILITY TOGGLE ================== */
+      function addTogglePassword(id) {
+        const input = document.getElementById(id);
+        if (!input) return;
+
+        const wrapper = document.createElement("div");
+        wrapper.style.position = "relative";
+        input.parentNode.insertBefore(wrapper, input);
+        wrapper.appendChild(input);
+
+        const eye = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3"/></svg>`;
+        const eyeOff = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.20.53-2.76 0-5-2.24-5-5 0-.79.20-1.53.53-2.20zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/></svg>`;
+
+        const toggle = document.createElement("span");
+        toggle.classList.add("toggle-password-icon");
+        toggle.innerHTML = eyeOff;
+        wrapper.appendChild(toggle);
+
+        toggle.addEventListener("click", () => {
+          const isPwd = input.type === "password";
+          input.type = isPwd ? "text" : "password";
+          toggle.innerHTML = isPwd ? eye : eyeOff;
+        });
+      }
+
+      ["currentPassword", "newPassword", "confirmNewPassword"].forEach(
+        addTogglePassword
+      );
+
+      /* ===================== DELETE ACCOUNT ===================== */
+      document
+        .getElementById("deleteAccountBtn")
+        .addEventListener("click", async () => {
+          if (
+            !confirm(
+              "¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer."
+            )
+          )
+            return;
+
+          const emailConfirm = prompt(
+            "Por favor, ingresa tu correo electrónico para confirmar:"
+          );
+          if (!emailConfirm) return alert("Operación cancelada.");
+          if (emailConfirm !== userData.email)
+            return alert("El correo ingresado no coincide con tu cuenta.");
+
+          const pwdConfirm = prompt("Por favor, ingresa tu contraseña:");
+          if (!pwdConfirm) return alert("Operación cancelada.");
+
+          try {
+            const res = await fetch(
+              "https://anuvyx-backend.vercel.app/api/delete-account",
+              {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  email: emailConfirm,
+                  password: pwdConfirm,
+                }),
+              }
+            );
+            const result = await res.json();
+            if (!res.ok) throw new Error(result.error || "Error al eliminar.");
+
+            localStorage.clear();
+            alert("Tu cuenta ha sido eliminada correctamente.");
+            window.location.href = "../index.html";
+          } catch (err) {
+            console.error("Delete account error:", err);
+            alert("No se pudo eliminar la cuenta: " + err.message);
+          }
+        });
+
+      /* ==================== MOBILE MENU ==================== */
+      const menuToggle = document.querySelector(".menu-toggle");
+      const navLinks = document.querySelector(".nav-links");
+
+      if (menuToggle && navLinks) {
+        menuToggle.addEventListener("click", () => {
+          menuToggle.classList.toggle("active");
+          navLinks.classList.toggle("active");
+          document.body.classList.toggle("no-scroll");
+        });
+
+        document.addEventListener("click", (e) => {
+          if (
+            !navLinks.contains(e.target) &&
+            !menuToggle.contains(e.target)
+          ) {
+            menuToggle.classList.remove("active");
+            navLinks.classList.remove("active");
+            document.body.classList.remove("no-scroll");
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

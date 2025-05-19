@@ -1,9 +1,11 @@
 /* VARIABLES Y RESET */
 :root {
   --color-bg: #171717;
+  --color-black-text: #000;
   --color-text: #fff;
   --color-sidebar-bg: #000;
-  --color-border: #616263;
+  --color-border: #d8d8d8;
+  --color-gray-hover: #616263;
   --color-hover: rgba(255, 255, 255, 0.05);
   --color-bot-message-bg: rgba(255, 255, 255, 0.05);
   --color-user-message-bg: #2D2E2F;
@@ -119,7 +121,7 @@ body {
 
 .sidebar-toggle:hover,
 .floating-toggle:hover {
-  background: var(--color-border);
+  background: var(--color-gray-hover);
   border-radius: 50%;
 }
 
@@ -646,6 +648,11 @@ body {
   transition: all var(--transition-speed);
 }
 
+#user-input::placeholder {
+  color: var(--color-placeholder);
+  opacity: 1;
+}
+
 #user-input:focus {
   border: none;
   outline: none;
@@ -672,7 +679,9 @@ body {
 }
 
 .file-upload-btn:hover {
-  background: var(--color-hover-dark);
+  background: var(--color-gold);
+  border: 1px solid var(--color-gold);
+  color: var(--color-black-text);
 }
 
 .file-upload-btn svg {
@@ -833,7 +842,9 @@ body {
 }
 
 #search-web-btn:hover {
-  background: var(--color-hover-dark);
+  background: var(--color-gold);
+  color: var(--color-black-text);
+  border: 1px solid var(--color-gold);
 }
 
 #search-web-btn svg {
@@ -986,11 +997,16 @@ th, td {
 .chat-search-container input {
   flex: 1;
   padding: 0.5rem;
-  border: 1px solid var(--color-border);
+  border: none;
   border-radius: 4px;
   background: var(--color-sidebar-bg);
   color: var(--color-text);
   margin-left: 0.5rem;
+}
+
+#chatSearchInput:focus {
+  border: 1px solid var(--color-border);
+  outline: none;
 }
 
 .chat-search-container input::placeholder {

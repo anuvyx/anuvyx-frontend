@@ -396,21 +396,30 @@
       document
         .getElementById("saveChangesBtn")
         .addEventListener("click", async () => {
+          const saveBtn = document.getElementById("saveChangesBtn");
+          const originalText = saveBtn.innerHTML;
+          saveBtn.disabled = true;
+          saveBtn.innerHTML = '<span class="spinner"></span>';
+
           const updatedName = document.getElementById("userName").value.trim();
           const updatedDOB = userDOBField.value;
-          const currentPassword =
-            document.getElementById("currentPassword").value;
+          const currentPassword = document.getElementById("currentPassword").value;
           const newPassword = document.getElementById("newPassword").value;
-          const confirmNewPassword =
-            document.getElementById("confirmNewPassword").value;
+          const confirmNewPassword = document.getElementById("confirmNewPassword").value;
 
           if (newPassword && newPassword !== confirmNewPassword) {
-            return alert("La nueva contraseña y su confirmación no coinciden.");
+            alert("La nueva contraseña y su confirmación no coinciden.");
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = originalText;
+            return;
           }
 
           const regex = /(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}/;
           if (newPassword && !regex.test(newPassword)) {
-            return alert("La nueva contraseña no cumple los requisitos.");
+            alert("La nueva contraseña no cumple los requisitos.");
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = originalText;
+            return;
           }
 
           const payload = {
@@ -437,15 +446,15 @@
                 method: "PUT",
                 headers: {
                   "Content-Type": "application/json",
-                  "Authorization": "Bearer " + token,
+                  Authorization: "Bearer " + token,
                 },
                 body: JSON.stringify(payload),
               }
             );
+
             const result = await res.json();
             if (!res.ok) throw new Error(result.error || "Error al actualizar.");
 
-            /* ---- Update localStorage ---- */
             const newUserData = {
               ...userData,
               name: updatedName,
@@ -458,6 +467,9 @@
           } catch (err) {
             console.error("Update profile error:", err);
             alert("No se pudo actualizar el perfil: " + err.message);
+          } finally {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = originalText;
           }
         });
 

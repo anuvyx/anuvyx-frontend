@@ -1156,6 +1156,10 @@
 
         dropupMenu.querySelector('.logout-button').addEventListener('click', () => {
           localStorage.removeItem('isLoggedIn');
+          localStorage.removeItem('authToken');
+          localStorage.removeItem('selectedChatId');
+          localStorage.removeItem('arexChats'); // <-- elimina chats del usuario
+
           window.location.reload();
         });
       }

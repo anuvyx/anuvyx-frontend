@@ -593,6 +593,16 @@ body {
   align-items: center;
 }
 
+.reasoning-message {
+  background-color: #1f1f1f;
+  border-left: 4px solid #ffaa00;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  font-style: italic;
+  color: #f0f0f0;
+}
+
 /* ÁREA DE ENTRADA DE MENSAJES */
 .chat-input-container {
   display: flex;

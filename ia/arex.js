@@ -266,8 +266,7 @@
       return container;
     }
 
-    const optionArexThinking = createOption('AREX THINKING', 'Próximamente', '#ADB0B4', true);
-    optionArexThinking.style.opacity = '0.5';
+    const optionArexThinking = createOption('AREX THINKING', 'Modo de razonamiento avanzado (Versión Alpha)', '#ADB0B4');
     const optionArexDeluxe = createOption('AREX DELUXE', 'Tareas complejas que requieren alta precisión y comprensión profunda.', '#ADB0B4');
     const optionArexGold = createOption('AREX GOLD', 'Tareas moderadamente complejas o simples con mayor precisión.', '#ADB0B4');
     const optionArex = createOption('AREX', 'Tareas simples donde la rapidez es una prioridad.', '#ADB0B4');
@@ -623,10 +622,23 @@
                 if (
                   parsed.choices &&
                   parsed.choices.length > 0 &&
-                  parsed.choices[0].delta &&
-                  parsed.choices[0].delta.content
+                  parsed.choices[0].delta
                 ) {
-                  botResponse += parsed.choices[0].delta.content;
+                  const delta = parsed.choices[0].delta;
+                  if (delta.reasoning_content) {
+                    if (!window.reasoningContainer) {
+                      const reasoningDiv = document.createElement('div');
+                      reasoningDiv.className = 'message bot-message reasoning-message';
+                      reasoningDiv.innerHTML = `<strong>Pensamiento:</strong><br><span class="reasoning-text"></span>`;
+                      chatMessages.insertBefore(reasoningDiv, botMessageDiv);
+                      chatMessages.scrollTop = chatMessages.scrollHeight;
+                      window.reasoningContainer = reasoningDiv.querySelector('.reasoning-text');
+                    }
+                    window.reasoningContainer.innerHTML += delta.reasoning_content;
+                  }
+                  if (delta.content) {
+                    botResponse += delta.content;
+                  }
                 }
               } catch (error) {
                 console.error("Error al parsear JSON:", error);
@@ -634,11 +646,9 @@
             }
           }
           botMessageDiv.innerHTML = marked.parse(botResponse);
-
           if (typeof MathJax !== 'undefined') {
             MathJax.typesetPromise([botMessageDiv]).catch((err) => console.error('MathJax error:', err));
           }
-
           if (shouldAutoScroll()) {
             chatMessages.scrollTop = chatMessages.scrollHeight;
           }
@@ -778,10 +788,23 @@
               if (
                 parsed.choices &&
                 parsed.choices.length > 0 &&
-                parsed.choices[0].delta &&
-                parsed.choices[0].delta.content
+                parsed.choices[0].delta
               ) {
-                botResponse += parsed.choices[0].delta.content;
+                const delta = parsed.choices[0].delta;
+                if (delta.reasoning_content) {
+                  if (!window.reasoningContainer) {
+                    const reasoningDiv = document.createElement('div');
+                    reasoningDiv.className = 'message bot-message reasoning-message';
+                    reasoningDiv.innerHTML = `<strong>Pensamiento:</strong><br><span class="reasoning-text"></span>`;
+                    chatMessages.insertBefore(reasoningDiv, botMessageDiv);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                    window.reasoningContainer = reasoningDiv.querySelector('.reasoning-text');
+                  }
+                  window.reasoningContainer.innerHTML += delta.reasoning_content;
+                }
+                if (delta.content) {
+                  botResponse += delta.content;
+                }
               }
             } catch (error) {
               console.error("Error al parsear JSON:", error);
@@ -789,11 +812,9 @@
           }
         }
         botMessageDiv.innerHTML = marked.parse(botResponse);
-
         if (typeof MathJax !== 'undefined') {
           MathJax.typesetPromise([botMessageDiv]).catch((err) => console.error('MathJax error:', err));
         }
-
         if (shouldAutoScroll()) {
           chatMessages.scrollTop = chatMessages.scrollHeight;
         }

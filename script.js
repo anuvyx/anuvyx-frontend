@@ -75,6 +75,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     dropdownMenu.querySelector('.logout-button').addEventListener('click', () => {
       localStorage.removeItem('isLoggedIn');
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('selectedChatId');
+      localStorage.removeItem('arexChats'); 
       window.location.reload();
     });
   }

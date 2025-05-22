@@ -1191,27 +1191,33 @@ pre code .token.property {
 }
 
 #customAlertOk,
-#customConfirmYes,
+#customDeleteNo,
 #customPromptOk {
-  background: var(--color-blue);          
+  background: var(--color-sidebar-bg);
+  border: 1px solid var(--color-gold);
   color: var(--color-white);
 }
 
 #customPromptCancel,
-#customConfirmNo {
+#customDeleteYes {
   background: var(--color-red);
   color: var(--color-white);
+  border: 1px solid var(--color-red);
 }
 
 #customAlertOk:hover,
-#customConfirmYes:hover,
+#customDeleteNo:hover,
 #customPromptOk:hover {
-  background: #0062c7;
+  background: var(--color-gold);
+  color: var(--color-black-text);
+  border: 1px solid var(--color-gold);
 }
 
 #customPromptCancel:hover,
-#customConfirmNo:hover {
+#customDeleteYes:hover {
   background: rgba(255, 0, 0, 0.7);
+  border: 1px solid rgba(255, 0, 0, 0.7);
+  color: var(--color-black-text);
 }
 
 /* RESPONSIVE DESIGN */

@@ -124,23 +124,23 @@
   }
 
   // Función para mostrar un diálogo de confirmación personalizado
-  function showCustomConfirm(message) {
+  function showCustomDelete(message) {
     return new Promise(resolve => {
       const modal = document.createElement('div');
       modal.classList.add('custom-alert-overlay');
       modal.innerHTML = `
         <div class="custom-alert-box">
           <p>${message}</p>
-          <button id="customConfirmYes">Sí</button>
-          <button id="customConfirmNo">No</button>
+          <button id="customDeleteNo">Cancelar</button>
+          <button id="customDeleteYes">Eliminar</button>
         </div>
       `;
       document.body.appendChild(modal);
-      document.getElementById('customConfirmYes').addEventListener('click', () => {
+      document.getElementById('customDeleteYes').addEventListener('click', () => {
         modal.remove();
         resolve(true);
       });
-      document.getElementById('customConfirmNo').addEventListener('click', () => {
+      document.getElementById('customDeleteNo').addEventListener('click', () => {
         modal.remove();
         resolve(false);
       });
@@ -169,6 +169,12 @@
       document.getElementById('customPromptCancel').addEventListener('click', () => {
         modal.remove();
         resolve(null);
+      });
+      document.getElementById('customPromptInput').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          document.getElementById('customPromptOk').click();
+        }
       });
     });
   }
@@ -383,7 +389,7 @@
       Eliminar
     `;
     deleteOption.addEventListener('click', async () => {
-      const confirmDelete = await showCustomConfirm("¿Estás seguro de que quieres eliminar este chat?");
+      const confirmDelete = await showCustomDelete("¿Estás seguro de que quieres eliminar este chat?");
       if (confirmDelete) {
         deleteChat(chatId);
       }
@@ -1195,7 +1201,7 @@
       }
     });
     deleteChatsBtn.addEventListener('click', async () => {
-      const confirmDelete = await showCustomConfirm('¿Estás seguro de que quieres eliminar todos los chats?');
+      const confirmDelete = await showCustomDelete('¿Estás seguro de que quieres eliminar todos los chats?');
       if (confirmDelete) {
         chats = [];
         localStorage.removeItem('arexChats');

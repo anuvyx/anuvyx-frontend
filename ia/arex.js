@@ -300,6 +300,10 @@
       localStorage.setItem('chatHeaderTitle', storedTitle);
     }
     document.getElementById('chatHeaderTitle').textContent = storedTitle;
+
+    if (localStorage.getItem('redirectAfterLogin') === 'arex') {
+      localStorage.removeItem('redirectAfterLogin');
+    }
   });
 
   // === CONFIGURACIÓN DE LIMPIEZA AUTOMÁTICA ===============================

@@ -516,6 +516,45 @@
     return { loadingDiv, countdownInterval };
   };
 
+  function appendCopyButton(messageDiv, rawContent, isUser) {
+    const copyButtonContainer = document.createElement('div');
+    copyButtonContainer.style.display = 'flex';
+    copyButtonContainer.style.justifyContent = isUser ? 'flex-end' : 'flex-start';
+    copyButtonContainer.style.marginTop = '5px';
+
+    const copyButton = document.createElement('button');
+    copyButton.className = 'copy-button';
+    copyButton.style.padding = '5px';
+    copyButton.style.backgroundColor = 'transparent';
+    copyButton.style.border = 'none';
+    copyButton.style.cursor = 'pointer';
+    copyButton.style.display = 'flex';
+    copyButton.style.alignItems = 'center';
+    copyButton.innerHTML = `
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+          stroke="#ffffff" stroke-width="2">
+        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6
+                a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+        <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+      </svg>
+    `;
+
+    copyButton.addEventListener('click', () => {
+      navigator.clipboard.writeText(rawContent).then(() => {
+        copyButton.innerHTML = `
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+              stroke="#ffffff" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        `;
+        setTimeout(() => { }, 2000);
+      });
+    });
+
+    copyButtonContainer.appendChild(copyButton);
+    messageDiv.after(copyButtonContainer); 
+  }
+
   // ENVÍO DE MENSAJES Y RESPUESTA DE LA API
   const sendMessage = async () => {
     const userText = userInput.value.trim();
@@ -665,6 +704,7 @@
         }
 
         enhanceMessage(botMessageDiv);
+        appendCopyButton(botMessageDiv, botResponse, false);
         chat.messages.push({
           content: botResponse,
           isUser: false,
@@ -831,6 +871,8 @@
       }
 
       enhanceMessage(botMessageDiv);
+      appendCopyButton(botMessageDiv, botResponse, false);
+      
       chat.messages.push({
         content: botResponse,
         isUser: false,
@@ -1045,6 +1087,8 @@
 
     chatMessages.appendChild(messageDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    enhanceMessage(messageDiv);
 
     if (!isUser && options.fuentesData && options.fuentesData.length > 0) {
       const fuentesBtn = document.createElement('button');

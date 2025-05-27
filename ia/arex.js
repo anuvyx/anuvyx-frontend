@@ -1176,6 +1176,42 @@
     copyButtonContainer.appendChild(copyButton);
     chatMessages.appendChild(copyButtonContainer);
 
+    if (isUser) {
+      const editButton = document.createElement('button');
+      editButton.className = 'edit-button';
+      editButton.style.padding = '5px';
+      editButton.style.backgroundColor = 'transparent';
+      editButton.style.border = 'none';
+      editButton.style.cursor = 'pointer';
+      editButton.style.display = 'flex';
+      editButton.style.alignItems = 'center';
+      editButton.disabled = true;
+      editButton.style.opacity = '0.4';
+      editButton.style.cursor = 'not-allowed';
+      editButton.innerHTML = `
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
+          <path d="M12 20h9"></path>
+          <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>
+        </svg>
+      `;
+      editButton.addEventListener('click', async () => {
+        const newText = await showCustomPrompt("Editar mensaje:", content);
+        if (newText !== null && newText.trim()) {
+          const chat = chats.find(c => c.id === currentChatId);
+          const msgObj = chat.messages.find(m => m.content === content && m.isUser);
+          if (msgObj) {
+            msgObj.content = newText.trim();
+            msgObj.displayContent = newText.trim();
+            saveChatsToStorage();
+            loadChatMessages();
+          }
+        }
+      });
+      copyButtonContainer.appendChild(editButton);
+    }
+
+    chatMessages.appendChild(copyButtonContainer);
+
     if (!isUser && typeof MathJax !== 'undefined') {
       MathJax.typesetPromise([messageDiv]).catch((err) => console.error('Error al renderizar MathJax:', err));
     }

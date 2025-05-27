@@ -1014,6 +1014,11 @@ th, td {
   margin-left: 0.5rem;
 }
 
+#chatSearchInput {
+  border: 1px solid var(--color-sidebar-bg);
+  outline: none;
+}
+
 #chatSearchInput:focus {
   border: 1px solid var(--color-border);
   outline: none;

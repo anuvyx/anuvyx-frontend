@@ -910,6 +910,104 @@
     }
   };
 
+  // Reenviar mensaje luego de editarlo
+  async function resendAfterEdit() {
+    const chat = chats.find(c => c.id === currentChatId);
+    if (!chat) return;
+
+    const { loadingDiv, countdownInterval } = showLoadingWithCounter();
+    abortController = new AbortController();
+    sendBtn.innerHTML = `
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M6 18L18 6M6 6l12 12"/>
+      </svg>`;
+    sendBtn.style.backgroundColor = '#FF0000E6';
+    sendBtn.onclick = cancelRequest;
+
+    try {
+      const conversationMessages = chat.messages.map(msg => ({
+        role: msg.isUser ? 'user' : 'assistant',
+        content: msg.content
+      }));
+
+      const response = await fetch('https://arex-backend.vercel.app/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: conversationMessages,
+          chatHeaderTitle: document.getElementById('chatHeaderTitle').textContent
+        }),
+        signal: abortController.signal
+      });
+
+      const botMessageDiv = document.createElement('div');
+      botMessageDiv.className = 'message bot-message';
+      chatMessages.appendChild(botMessageDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+      let botResponse = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value);
+        for (let line of chunk.split('\n')) {
+          line = line.trim();
+          if (!line) continue;
+          if (line.startsWith('data:')) {
+            const jsonStr = line.replace(/^(data:\s*)+/i, '');
+            if (jsonStr === '[DONE]') { reader.cancel(); break; }
+            try {
+              const parsed = JSON.parse(jsonStr);
+              const delta = parsed.choices?.[0]?.delta || {};
+              if (delta.reasoning_content) {
+                if (!window.reasoningContainer) {
+                  const reasoningDiv = document.createElement('div');
+                  reasoningDiv.className = 'message bot-message reasoning-message';
+                  reasoningDiv.innerHTML = `<strong>Pensamiento:</strong><br><span class="reasoning-text"></span>`;
+                  chatMessages.insertBefore(reasoningDiv, botMessageDiv);
+                  window.reasoningContainer = reasoningDiv.querySelector('.reasoning-text');
+                }
+                window.reasoningContainer.innerHTML += delta.reasoning_content;
+              }
+              if (delta.content) botResponse += delta.content;
+            } catch { /* ignoramos parseos fallidos */ }
+          }
+        }
+        botMessageDiv.innerHTML = marked.parse(botResponse);
+        if (shouldAutoScroll()) chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+
+      enhanceMessage(botMessageDiv);
+      appendCopyButton(botMessageDiv, botResponse, false);
+
+      chat.messages.push({
+        content: botResponse,
+        isUser: false,
+        timestamp: Date.now(),
+        fuentesData: []
+      });
+
+      saveChatsToStorage();
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        console.error('Error al reenviar tras edición:', err);
+        displayMessage('Error: no se pudo obtener la nueva respuesta.', false);
+      }
+    } finally {
+      sendBtn.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+        </svg>`;
+      sendBtn.style.backgroundColor = '#ffffff';
+      sendBtn.onclick = sendMessage;
+      clearInterval(countdownInterval);
+      loadingDiv.remove();
+    }
+  }
+
   // MEJORA DEL FORMATO DE LOS MENSAJES
   function enhanceMessage(messageDiv) {
     const codeBlocks = messageDiv.querySelectorAll('pre > code');
@@ -1185,9 +1283,7 @@
       editButton.style.cursor = 'pointer';
       editButton.style.display = 'flex';
       editButton.style.alignItems = 'center';
-      editButton.disabled = true;
-      editButton.style.opacity = '0.4';
-      editButton.style.cursor = 'not-allowed';
+
       editButton.innerHTML = `
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
           <path d="M12 20h9"></path>
@@ -1198,12 +1294,19 @@
         const newText = await showCustomPrompt("Editar mensaje:", content);
         if (newText !== null && newText.trim()) {
           const chat = chats.find(c => c.id === currentChatId);
-          const msgObj = chat.messages.find(m => m.content === content && m.isUser);
-          if (msgObj) {
-            msgObj.content = newText.trim();
-            msgObj.displayContent = newText.trim();
+          const userIndex = chat.messages.findIndex(m => m.content === content && m.isUser);
+
+          if (userIndex !== -1) {
+            chat.messages[userIndex].content = newText.trim();
+            chat.messages[userIndex].displayContent = newText.trim();
+
+            chat.messages = chat.messages.slice(0, userIndex + 1);
+
             saveChatsToStorage();
+
             loadChatMessages();
+
+            resendAfterEdit();
           }
         }
       });

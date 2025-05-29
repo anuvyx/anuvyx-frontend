@@ -559,6 +559,41 @@
     });
 
     copyButtonContainer.appendChild(copyButton);
+
+    if (!isUser && rawContent !== "¡Hola! Soy Arex, el asistente de IA de Anuvyx.\n\n¿En qué puedo ayudarte hoy?\n") {
+      const reloadButton = document.createElement('button');
+      reloadButton.className = 'reload-button';
+      reloadButton.style.padding = '5px';
+      reloadButton.style.backgroundColor = 'transparent';
+      reloadButton.style.border = 'none';
+      reloadButton.style.cursor = 'pointer';
+      reloadButton.style.display = 'flex';
+      reloadButton.style.alignItems = 'center';
+      reloadButton.innerHTML = `
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
+          <polyline points="23 4 23 10 17 10"></polyline>
+          <polyline points="1 20 1 14 7 14"></polyline>
+          <path d="M3.51 9a9 9 0 0 1 14.13-3.36L23 10"></path>
+          <path d="M20.49 15A9 9 0 0 1 5.85 18.36L1 14"></path>
+        </svg>
+      `;
+
+      reloadButton.addEventListener('click', () => {
+        const chat = chats.find(c => c.id === currentChatId);
+        if (!chat) return;
+        const lastBotIndex = [...chat.messages].reverse().findIndex(m => !m.isUser && m.content === rawContent);
+        if (lastBotIndex !== -1) {
+          const trueIndex = chat.messages.length - 1 - lastBotIndex;
+          chat.messages = chat.messages.slice(0, trueIndex);
+          saveChatsToStorage();
+          loadChatMessages();
+          resendAfterEdit();
+        }
+      });
+
+      copyButtonContainer.appendChild(reloadButton);
+    }
+
     messageDiv.after(copyButtonContainer); 
   }
 
@@ -1272,6 +1307,41 @@
         .catch((err) => console.error('Error al copiar el texto:', err));
     });
     copyButtonContainer.appendChild(copyButton);
+
+    if (!isUser && content !== "¡Hola! Soy Arex, el asistente de IA de Anuvyx.\n\n¿En qué puedo ayudarte hoy?\n") {
+      const reloadButton = document.createElement('button');
+      reloadButton.className = 'reload-button';
+      reloadButton.style.padding = '5px';
+      reloadButton.style.backgroundColor = 'transparent';
+      reloadButton.style.border = 'none';
+      reloadButton.style.cursor = 'pointer';
+      reloadButton.style.display = 'flex';
+      reloadButton.style.alignItems = 'center';
+      reloadButton.innerHTML = `
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
+          <polyline points="23 4 23 10 17 10"></polyline>
+          <polyline points="1 20 1 14 7 14"></polyline>
+          <path d="M3.51 9a9 9 0 0 1 14.13-3.36L23 10"></path>
+          <path d="M20.49 15A9 9 0 0 1 5.85 18.36L1 14"></path>
+        </svg>
+      `;
+
+      reloadButton.addEventListener('click', () => {
+        const chat = chats.find(c => c.id === currentChatId);
+        if (!chat) return;
+        const lastBotIndex = [...chat.messages].reverse().findIndex(m => !m.isUser && m.content === content);
+        if (lastBotIndex !== -1) {
+          const trueIndex = chat.messages.length - 1 - lastBotIndex;
+          chat.messages = chat.messages.slice(0, trueIndex);
+          saveChatsToStorage();
+          loadChatMessages();
+          resendAfterEdit();
+        }
+      });
+
+      copyButtonContainer.appendChild(reloadButton);
+    }
+
     chatMessages.appendChild(copyButtonContainer);
 
     if (isUser) {

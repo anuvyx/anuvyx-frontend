@@ -1047,11 +1047,19 @@
   function enhanceMessage(messageDiv) {
     const codeBlocks = messageDiv.querySelectorAll('pre > code');
     codeBlocks.forEach((codeBlock) => {
+      const preBlock = codeBlock.parentElement;
+
+      if (preBlock.previousElementSibling && preBlock.previousElementSibling.classList.contains('code-header')) {
+        return;
+      }
+
       const language = codeBlock.className.replace('language-', '') || 'plaintext';
       const header = document.createElement('div');
       header.classList.add('code-header');
+
       const languageSpan = document.createElement('span');
       languageSpan.textContent = language;
+
       const copyIcon = document.createElement('button');
       copyIcon.classList.add('copy-icon');
       copyIcon.innerHTML = `
@@ -1060,6 +1068,7 @@
           <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
         </svg>
       `;
+
       copyIcon.addEventListener('click', () => {
         navigator.clipboard.writeText(codeBlock.textContent)
           .then(() => {
@@ -1076,19 +1085,19 @@
                 </svg>
               `;
             }, 2000);
-          })
-          .catch((err) => console.error('Error al copiar el código:', err));
+          });
       });
+
       header.appendChild(languageSpan);
       header.appendChild(copyIcon);
-      const preBlock = codeBlock.parentElement;
       preBlock.parentElement.insertBefore(header, preBlock);
       preBlock.classList.add('line-numbers');
       preBlock.setAttribute('data-lang', language);
       Prism.highlightElement(codeBlock);
     });
+
     if (typeof MathJax !== 'undefined') {
-      MathJax.typesetPromise([messageDiv]).catch((err) => console.error('Error al renderizar MathJax:', err));
+      MathJax.typesetPromise([messageDiv]).catch((err) => console.error('MathJax error:', err));
     }
   }
 

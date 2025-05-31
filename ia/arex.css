@@ -514,7 +514,7 @@ body {
 
 /* MENSAJES DEL CHAT */
 .chat-messages {
-  height: calc(100vh - 235px);
+  height: calc(100vh - 237px);
   overflow-y: auto;
   padding-right: 16rem;
   padding-left: 14rem;
@@ -608,9 +608,10 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-top: 0.5rem;
   position: fixed;
   bottom: 0;
-  width: calc(100% - 300px - 4rem);
+  width: calc(100% - 260px - 4rem);
   background: var(--color-bg);
   border-top: 1px solid var(--color-gold);
   padding: 1rem 0;

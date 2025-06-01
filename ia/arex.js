@@ -737,6 +737,7 @@
             }
           }
           botMessageDiv.innerHTML = marked.parse(botResponse);
+          enhanceMessage(botMessageDiv);
           if (typeof MathJax !== 'undefined') {
             MathJax.typesetPromise([botMessageDiv]).catch((err) => console.error('MathJax error:', err));
           }
@@ -904,6 +905,7 @@
           }
         }
         botMessageDiv.innerHTML = marked.parse(botResponse);
+        enhanceMessage(botMessageDiv);
         if (typeof MathJax !== 'undefined') {
           MathJax.typesetPromise([botMessageDiv]).catch((err) => console.error('MathJax error:', err));
         }
@@ -1012,6 +1014,7 @@
           }
         }
         botMessageDiv.innerHTML = marked.parse(botResponse);
+        enhanceMessage(botMessageDiv);
         if (shouldAutoScroll()) chatMessages.scrollTop = chatMessages.scrollHeight;
       }
 

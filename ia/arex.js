@@ -763,7 +763,6 @@
             if (line.startsWith('data:')) {
               let jsonStr = line.replace(/^(data:\s*)+/i, '');
               if (jsonStr === '[DONE]') {
-                reader.cancel();
                 break;
               }
               try {
@@ -928,7 +927,6 @@
           if (line.startsWith('data:')) {
             let jsonStr = line.replace(/^(data:\s*)+/i, '');
             if (jsonStr === '[DONE]') {
-              reader.cancel();
               break;
             }
             try {
@@ -1047,7 +1045,7 @@
           if (!line) continue;
           if (line.startsWith('data:')) {
             const jsonStr = line.replace(/^(data:\s*)+/i, '');
-            if (jsonStr === '[DONE]') { reader.cancel(); break; }
+            if (jsonStr === '[DONE]') { break; }
             try {
               const parsed = JSON.parse(jsonStr);
               const delta = parsed.choices?.[0]?.delta || {};

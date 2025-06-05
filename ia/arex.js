@@ -1178,7 +1178,6 @@
         processedContent = processedContent
           .replace(/\\\(.+?\\\)/g, (match) => match)
           .replace(/\\\[.+?\\\]/g, (match) => match)
-          .replace(/\$(.+?)\$/g, (match, p1) => p1)
           .replace(/\\boxed\{(.+?)\}/g, (match) => `\\boxed{${match.slice(7, -1)}}`);
         const tempContainer = document.createElement('div');
         tempContainer.innerHTML = processedContent;

@@ -69,7 +69,16 @@
     }
     .profile-info h2 {
       color: var(--color-border-gold);
-      margin-bottom: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .subscription-section {
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid #333;
+    }
+    .subscription-section h2 {
+      color: var(--color-border-gold);
+      margin-bottom: 1rem;
     }
     .info-group {
       margin-bottom: 1.5rem;
@@ -106,6 +115,10 @@
       margin-top: 2rem;
       padding-top: 2rem;
       border-top: 1px solid #333;
+    }
+    .security-section h2 {
+      color: var(--color-border-gold);
+      margin-bottom: 1rem;
     }
     .button-group {
       display: flex;
@@ -247,6 +260,23 @@
                 type="date"
                 disabled
                 class="disabled-input"
+              />
+            </div>
+          </div>
+
+          <!-- Suscripción -->
+          <div class="subscription-section">
+            <h2>Suscripción</h2>
+
+            <div class="info-group">
+              <label>Tipo de suscripción</label>
+              <input
+                id="userSubscription"
+                type="text"
+                disabled
+                readonly
+                class="disabled-input"
+                value="Gratis"
               />
             </div>
           </div>

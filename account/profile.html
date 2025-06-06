@@ -276,7 +276,6 @@
                 disabled
                 readonly
                 class="disabled-input"
-                value="Gratis"
               />
             </div>
           </div>
@@ -380,6 +379,7 @@
       /* ---- Basic info ---- */
       document.getElementById("userName").value = userData.name || "";
       document.getElementById("userEmail").value = userData.email || "";
+      document.getElementById("userSubscription").value = userData.subscription || "";
 
       /* ---- Birth date ---- */
       const userDOBField = document.getElementById("userDOB");

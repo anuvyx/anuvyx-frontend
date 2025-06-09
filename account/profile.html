@@ -230,7 +230,6 @@
                 id="userName"
                 type="text"
                 disabled
-                readonly
                 class="disabled-input"
               />
             </div>
@@ -241,7 +240,6 @@
                 id="userEmail"
                 type="email"
                 disabled
-                readonly
                 class="disabled-input"
               />
             </div>
@@ -274,7 +272,6 @@
                 id="userSubscription"
                 type="text"
                 disabled
-                readonly
                 class="disabled-input"
               />
             </div>
@@ -356,7 +353,7 @@
   <!-- Footer -->
   <footer class="footer">
     <p class="copyright">
-      &copy; 2025 Anuvyx. Todos los derechos reservados.
+      &copy; 2025 Anuvyx. Todos los derechos reservados.
     </p>
   </footer>
 
@@ -368,30 +365,53 @@
     }
 
     document.addEventListener("DOMContentLoaded", () => {
+      /* Declaramos userData en ámbito global dentro del closure */
+      let userData = {};
+
       /* ========================= INITIAL DATA LOAD ========================= */
-      const userData = JSON.parse(localStorage.getItem("userData") || "{}");
-      if (!userData.email) {
-        alert("Datos de usuario no encontrados. Por favor, inicia sesión.");
-        window.location.href = "../index.html#login";
-        return;
+      async function loadUserProfile() {
+        const token = localStorage.getItem("authToken");
+        if (!token) {
+          alert("Token no encontrado. Inicia sesión de nuevo.");
+          window.location.href = "../index.html#login";
+          return;
+        }
+
+        try {
+          const res = await fetch("https://anuvyx-backend.vercel.app/api/profile", {
+            headers: { Authorization: "Bearer " + token }
+          });
+
+          if (!res.ok) throw new Error("No se pudo obtener el perfil");
+
+          userData = await res.json();
+
+          // Guardar datos actualizados
+          localStorage.setItem("userData", JSON.stringify(userData));
+
+          document.getElementById("userName").value          = userData.name         || "";
+          document.getElementById("userEmail").value         = userData.email        || "";
+          document.getElementById("userSubscription").value  = userData.subscription || "";
+
+          const userDOBField = document.getElementById("userDOB");
+          if (userData.birthDate) {
+            const isoDate = new Date(userData.birthDate).toISOString().split("T")[0];
+            userDOBField.value = isoDate;
+          }
+        } catch (err) {
+          console.error("Error al cargar el perfil:", err);
+          alert("Error al cargar tu perfil. Intenta iniciar sesión nuevamente.");
+          window.location.href = "../index.html#login";
+        }
       }
 
-      /* ---- Basic info ---- */
-      document.getElementById("userName").value = userData.name || "";
-      document.getElementById("userEmail").value = userData.email || "";
-      document.getElementById("userSubscription").value = userData.subscription || "";
-
-      /* ---- Birth date ---- */
-      const userDOBField = document.getElementById("userDOB");
-      if (userData.birthDate) {
-        const isoDate =
-          new Date(userData.birthDate).toISOString().split("T")[0];
-        userDOBField.value = isoDate;
-      }
+      /* --- Carga inicial --- */
+      loadUserProfile();
 
       /* =========================== EDIT PROFILE =========================== */
-      const editBtn = document.getElementById("editProfileBtn");
-      const saveCancel = document.getElementById("saveCancelButtons");
+      const editBtn      = document.getElementById("editProfileBtn");
+      const saveCancel   = document.getElementById("saveCancelButtons");
+      const userDOBField = document.getElementById("userDOB");
 
       const fields = [
         document.getElementById("userName"),
@@ -431,11 +451,11 @@
           saveBtn.disabled = true;
           saveBtn.innerHTML = '<span class="spinner"></span>';
 
-          const updatedName = document.getElementById("userName").value.trim();
-          const updatedDOB = userDOBField.value;
-          const currentPassword = document.getElementById("currentPassword").value;
-          const newPassword = document.getElementById("newPassword").value;
-          const confirmNewPassword = document.getElementById("confirmNewPassword").value;
+          const updatedName         = document.getElementById("userName").value.trim();
+          const updatedDOB          = userDOBField.value;
+          const currentPassword     = document.getElementById("currentPassword").value;
+          const newPassword         = document.getElementById("newPassword").value;
+          const confirmNewPassword  = document.getElementById("confirmNewPassword").value;
 
           if (newPassword && newPassword !== confirmNewPassword) {
             alert("La nueva contraseña y su confirmación no coinciden.");
@@ -459,7 +479,7 @@
 
           if (newPassword) {
             payload.currentPassword = currentPassword;
-            payload.newPassword = newPassword;
+            payload.newPassword    = newPassword;
           }
 
           try {
@@ -485,6 +505,7 @@
             const result = await res.json();
             if (!res.ok) throw new Error(result.error || "Error al actualizar.");
 
+            /* Actualiza y guarda localmente los nuevos datos */
             const newUserData = {
               ...userData,
               name: updatedName,
@@ -528,58 +549,46 @@
         });
       }
 
-      ["currentPassword", "newPassword", "confirmNewPassword"].forEach(
-        addTogglePassword
-      );
+      ["currentPassword", "newPassword", "confirmNewPassword"].forEach(addTogglePassword);
 
       /* ===================== DELETE ACCOUNT ===================== */
-      document
-        .getElementById("deleteAccountBtn")
-        .addEventListener("click", async () => {
-          if (
-            !confirm(
-              "¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer."
-            )
-          )
-            return;
+      document.getElementById("deleteAccountBtn").addEventListener("click", async () => {
+        if (!confirm("¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.")) return;
 
-          const emailConfirm = prompt(
-            "Por favor, ingresa tu correo electrónico para confirmar:"
+        const emailConfirm = prompt("Por favor, ingresa tu correo electrónico para confirmar:");
+        if (!emailConfirm) return alert("Operación cancelada.");
+        if (emailConfirm !== userData.email) return alert("El correo ingresado no coincide con tu cuenta.");
+
+        const pwdConfirm = prompt("Por favor, ingresa tu contraseña:");
+        if (!pwdConfirm) return alert("Operación cancelada.");
+
+        try {
+          const res = await fetch(
+            "https://anuvyx-backend.vercel.app/api/delete-account",
+            {
+              method: "DELETE",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                email: emailConfirm,
+                password: pwdConfirm,
+              }),
+            }
           );
-          if (!emailConfirm) return alert("Operación cancelada.");
-          if (emailConfirm !== userData.email)
-            return alert("El correo ingresado no coincide con tu cuenta.");
+          const result = await res.json();
+          if (!res.ok) throw new Error(result.error || "Error al eliminar.");
 
-          const pwdConfirm = prompt("Por favor, ingresa tu contraseña:");
-          if (!pwdConfirm) return alert("Operación cancelada.");
+          localStorage.clear();
+          alert("Tu cuenta ha sido eliminada correctamente.");
+          window.location.href = "../index.html";
+        } catch (err) {
+          console.error("Delete account error:", err);
+          alert("No se pudo eliminar la cuenta: " + err.message);
+        }
+      });
 
-          try {
-            const res = await fetch(
-              "https://anuvyx-backend.vercel.app/api/delete-account",
-              {
-                method: "DELETE",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  email: emailConfirm,
-                  password: pwdConfirm,
-                }),
-              }
-            );
-            const result = await res.json();
-            if (!res.ok) throw new Error(result.error || "Error al eliminar.");
-
-            localStorage.clear();
-            alert("Tu cuenta ha sido eliminada correctamente.");
-            window.location.href = "../index.html";
-          } catch (err) {
-            console.error("Delete account error:", err);
-            alert("No se pudo eliminar la cuenta: " + err.message);
-          }
-        });
-
-      /* ==================== MOBILE MENU ==================== */
+      /* ==================== MOBILE MENU ==================== */
       const menuToggle = document.querySelector(".menu-toggle");
-      const navLinks = document.querySelector(".nav-links");
+      const navLinks   = document.querySelector(".nav-links");
 
       if (menuToggle && navLinks) {
         menuToggle.addEventListener("click", () => {
@@ -589,10 +598,7 @@
         });
 
         document.addEventListener("click", (e) => {
-          if (
-            !navLinks.contains(e.target) &&
-            !menuToggle.contains(e.target)
-          ) {
+          if (!navLinks.contains(e.target) && !menuToggle.contains(e.target)) {
             menuToggle.classList.remove("active");
             navLinks.classList.remove("active");
             document.body.classList.remove("no-scroll");

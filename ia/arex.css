@@ -178,8 +178,8 @@ body {
 .user-dropup {
   display: none;
   position: absolute;
-  right: 0;
-  bottom: 100%;
+  right: -3.5rem;
+  bottom: 130%;
   background: var(--color-sidebar-bg);
   border: 1px solid var(--color-border);
   border-radius: 8px;

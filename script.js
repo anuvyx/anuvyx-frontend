@@ -74,11 +74,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
     dropdownMenu.querySelector('.logout-button').addEventListener('click', () => {
-      localStorage.removeItem('isLoggedIn');
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('selectedChatId');
-      localStorage.removeItem('arexChats'); 
-      window.location.reload();
+      localStorage.clear();
+      const indexPath = basePath + 'index.html';
+      window.location.replace(indexPath);
     });
   }
 
@@ -102,6 +100,23 @@ document.addEventListener('DOMContentLoaded', () => {
     content.style.transform = 'translateY(20px)';
     content.style.transition = 'all 0.6s ease-out';
     observer.observe(content);
+  });
+
+  /* === Sincroniza la barra de navegación al volver desde el historial === */
+  window.addEventListener('pageshow', (e) => {
+    if (e.persisted && localStorage.getItem('isLoggedIn') !== 'true') {
+      const userMenu = document.querySelector('.user-menu-container');
+      if (userMenu) userMenu.remove();
+
+      if (!document.querySelector('.login-link')) {
+        const navLinks = document.querySelector('.nav-links');
+        const loginA   = document.createElement('a');
+        loginA.href         = 'account/login.html';
+        loginA.className    = 'nav-link login-link';
+        loginA.textContent  = 'Iniciar sesión';
+        navLinks.appendChild(loginA);
+      }
+    }
   });
 
   /* Navbar Background Adjustment */

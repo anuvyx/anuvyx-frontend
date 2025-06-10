@@ -1449,7 +1449,7 @@
           localStorage.removeItem('isLoggedIn');
           localStorage.removeItem('authToken');
           localStorage.removeItem('selectedChatId');
-          localStorage.removeItem('arexChats'); // <-- elimina chats del usuario
+          localStorage.removeItem('arexChats');
 
           window.location.reload();
         });
@@ -1490,6 +1490,26 @@
     document.getElementById('floatingToggle').addEventListener('click', toggleSidebar);
     userInput.addEventListener('input', autoResizeTextarea);
     autoResizeTextarea();
+
+    /* --- Sincroniza la vista cuando se vuelve del historial --- */
+    window.addEventListener('pageshow', (e) => {
+      if (e.persisted && localStorage.getItem('isLoggedIn') !== 'true') {
+        const chatHistory  = document.getElementById('chatHistory');
+        const chatMessages = document.getElementById('chatMessages');
+        if (chatHistory)  chatHistory.innerHTML  = '';
+        if (chatMessages) chatMessages.innerHTML = '';
+
+        if (typeof chats !== 'undefined') chats.length = 0;
+
+        window.location.reload();   
+      }
+    });
+
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'isLoggedIn' && e.newValue !== 'true') {
+        window.location.reload();
+      }
+    });
 
     window.addEventListener('load', async () => {
       const sidebarState = localStorage.getItem('sidebarState');

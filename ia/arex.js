@@ -272,11 +272,15 @@
       return container;
     }
 
+    const optionArexVinci = createOption('AREX VINCI', 'Próximamente', '#ADB0B4', true);
+    optionArexVinci.style.opacity = '0.5';
+    optionArexVinci.style.cursor = 'not-allowed';
     const optionArexThinking = createOption('AREX THINKING', 'Modo de razonamiento avanzado (Versión Alpha)', '#ADB0B4');
     const optionArexDeluxe = createOption('AREX DELUXE', 'Tareas complejas que requieren alta precisión y comprensión profunda.', '#ADB0B4');
     const optionArexGold = createOption('AREX GOLD', 'Tareas moderadamente complejas o simples con mayor precisión.', '#ADB0B4');
     const optionArex = createOption('AREX', 'Tareas simples donde la rapidez es una prioridad.', '#ADB0B4');
 
+    menu.appendChild(optionArexVinci);
     menu.appendChild(optionArexThinking);
     menu.appendChild(optionArexDeluxe);
     menu.appendChild(optionArexGold);

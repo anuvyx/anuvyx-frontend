@@ -275,7 +275,7 @@
     const optionArexVinci = createOption('AREX VINCI', 'Próximamente', '#ADB0B4', true);
     optionArexVinci.style.opacity = '0.5';
     optionArexVinci.style.cursor = 'not-allowed';
-    const optionArexThinking = createOption('AREX THINKING', 'Modo de razonamiento avanzado (Versión Alpha)', '#ADB0B4');
+    const optionArexThinking = createOption('AREX THINKING', 'Modo de razonamiento avanzado (Versión Beta)', '#ADB0B4');
     const optionArexDeluxe = createOption('AREX DELUXE', 'Tareas complejas que requieren alta precisión y comprensión profunda.', '#ADB0B4');
     const optionArexGold = createOption('AREX GOLD', 'Tareas moderadamente complejas o simples con mayor precisión.', '#ADB0B4');
     const optionArex = createOption('AREX', 'Tareas simples donde la rapidez es una prioridad.', '#ADB0B4');
@@ -453,7 +453,12 @@
     if (!chat) return;
     chatMessages.innerHTML = '';
     chat.messages.forEach((msg) => {
-      if (msg.isUser) {
+      if (msg.isReasoning) {
+        const reasoningDiv = document.createElement('div');
+        reasoningDiv.className = 'message bot-message reasoning-message';
+        reasoningDiv.innerHTML = `<strong>Pensamiento:</strong><br><span class="reasoning-text">${msg.content}</span>`;
+        chatMessages.appendChild(reasoningDiv);
+      } else if (msg.isUser) {
         displayMessage(msg.displayContent || msg.content, true);
       } else {
         displayMessage(msg.content, false, { fuentesData: msg.fuentesData });
@@ -755,6 +760,7 @@
         const reader = chatResponse.body.getReader();
         const decoder = new TextDecoder('utf-8');
         let botResponse = '';
+        let reasoningText = '';
 
         while (true) {
           const { done, value } = await reader.read();
@@ -787,6 +793,7 @@
                       window.reasoningContainer = reasoningDiv.querySelector('.reasoning-text');
                     }
                     window.reasoningContainer.innerHTML += delta.reasoning_content;
+                    reasoningText += delta.reasoning_content;
                   }
                   if (delta.content) {
                     botResponse += delta.content;
@@ -806,6 +813,16 @@
 
         enhanceMessage(botMessageDiv);
         appendCopyButton(botMessageDiv, botResponse, false);
+
+        if (reasoningText.trim()) {
+          chat.messages.push({
+            content: reasoningText.trim(),
+            isUser: false,
+            isReasoning: true,
+            timestamp: Date.now()
+          });
+        }
+
         chat.messages.push({
           content: botResponse,
           isUser: false,
@@ -919,6 +936,7 @@
       const reader = response.body.getReader();
       const decoder = new TextDecoder('utf-8');
       let botResponse = '';
+      let reasoningText = '';
 
       while (true) {
         const { done, value } = await reader.read();
@@ -951,6 +969,7 @@
                     window.reasoningContainer = reasoningDiv.querySelector('.reasoning-text');
                   }
                   window.reasoningContainer.innerHTML += delta.reasoning_content;
+                  reasoningText += delta.reasoning_content;
                 }
                 if (delta.content) {
                   botResponse += delta.content;
@@ -970,6 +989,15 @@
 
       enhanceMessage(botMessageDiv);
       appendCopyButton(botMessageDiv, botResponse, false);
+
+      if (reasoningText.trim()) {
+        chat.messages.push({
+          content: reasoningText.trim(),
+          isUser: false,
+          isReasoning: true,
+          timestamp: Date.now()
+        });
+      }
       
       chat.messages.push({
         content: botResponse,
@@ -1039,6 +1067,7 @@
       const reader = response.body.getReader();
       const decoder = new TextDecoder('utf-8');
       let botResponse = '';
+      let reasoningText = '';
 
       while (true) {
         const { done, value } = await reader.read();
@@ -1062,6 +1091,7 @@
                   window.reasoningContainer = reasoningDiv.querySelector('.reasoning-text');
                 }
                 window.reasoningContainer.innerHTML += delta.reasoning_content;
+                reasoningText += delta.reasoning_content;
               }
               if (delta.content) botResponse += delta.content;
             } catch { /* ignoramos parseos fallidos */ }
@@ -1074,6 +1104,15 @@
 
       enhanceMessage(botMessageDiv);
       appendCopyButton(botMessageDiv, botResponse, false);
+
+      if (reasoningText.trim()) {
+        chat.messages.push({
+          content: reasoningText.trim(),
+          isUser: false,
+          isReasoning: true,
+          timestamp: Date.now()
+        });
+      }
 
       chat.messages.push({
         content: botResponse,

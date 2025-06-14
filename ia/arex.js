@@ -272,9 +272,7 @@
       return container;
     }
 
-    const optionArexVinci = createOption('AREX VINCI', 'Próximamente', '#ADB0B4', true);
-    optionArexVinci.style.opacity = '0.5';
-    optionArexVinci.style.cursor = 'not-allowed';
+    const optionArexVinci = createOption('AREX VINCI', 'Generación de imagen (Alpha)', '#ADB0B4');
     const optionArexThinking = createOption('AREX THINKING', 'Modo de razonamiento avanzado (Versión Beta)', '#ADB0B4');
     const optionArexDeluxe = createOption('AREX DELUXE', 'Tareas complejas que requieren alta precisión y comprensión profunda.', '#ADB0B4');
     const optionArexGold = createOption('AREX GOLD', 'Tareas moderadamente complejas o simples con mayor precisión.', '#ADB0B4');
@@ -772,17 +770,24 @@
             if (!line) continue;
             if (line.startsWith('data:')) {
               let jsonStr = line.replace(/^(data:\s*)+/i, '');
-              if (jsonStr === '[DONE]') {
-                break;
-              }
+              if (jsonStr === '[DONE]') break;
+
               try {
                 const parsed = JSON.parse(jsonStr);
+
+                // Soporte para modelo de imagen
+                if (parsed.content) {
+                  botResponse += parsed.content;
+                }
+
+                // Soporte para modelos normales
                 if (
                   parsed.choices &&
                   parsed.choices.length > 0 &&
                   parsed.choices[0].delta
                 ) {
                   const delta = parsed.choices[0].delta;
+
                   if (delta.reasoning_content) {
                     if (!window.reasoningContainer) {
                       const reasoningDiv = document.createElement('div');
@@ -795,6 +800,7 @@
                     window.reasoningContainer.innerHTML += delta.reasoning_content;
                     reasoningText += delta.reasoning_content;
                   }
+
                   if (delta.content) {
                     botResponse += delta.content;
                   }
@@ -948,17 +954,24 @@
           if (!line) continue;
           if (line.startsWith('data:')) {
             let jsonStr = line.replace(/^(data:\s*)+/i, '');
-            if (jsonStr === '[DONE]') {
-              break;
-            }
+            if (jsonStr === '[DONE]') break;
+
             try {
               const parsed = JSON.parse(jsonStr);
+
+              // Soporte para modelo de imagen
+              if (parsed.content) {
+                botResponse += parsed.content;
+              }
+
+              // Soporte para modelos normales
               if (
                 parsed.choices &&
                 parsed.choices.length > 0 &&
                 parsed.choices[0].delta
               ) {
                 const delta = parsed.choices[0].delta;
+
                 if (delta.reasoning_content) {
                   if (!window.reasoningContainer) {
                     const reasoningDiv = document.createElement('div');
@@ -971,6 +984,7 @@
                   window.reasoningContainer.innerHTML += delta.reasoning_content;
                   reasoningText += delta.reasoning_content;
                 }
+
                 if (delta.content) {
                   botResponse += delta.content;
                 }
@@ -979,6 +993,7 @@
               console.error("Error al parsear JSON:", error);
             }
           }
+
         }
         botMessageDiv.innerHTML = marked.parse(botResponse);
         enhanceMessage(botMessageDiv);
@@ -1077,25 +1092,47 @@
           line = line.trim();
           if (!line) continue;
           if (line.startsWith('data:')) {
-            const jsonStr = line.replace(/^(data:\s*)+/i, '');
-            if (jsonStr === '[DONE]') { break; }
+            let jsonStr = line.replace(/^(data:\s*)+/i, '');
+            if (jsonStr === '[DONE]') break;
+
             try {
               const parsed = JSON.parse(jsonStr);
-              const delta = parsed.choices?.[0]?.delta || {};
-              if (delta.reasoning_content) {
-                if (!window.reasoningContainer) {
-                  const reasoningDiv = document.createElement('div');
-                  reasoningDiv.className = 'message bot-message reasoning-message';
-                  reasoningDiv.innerHTML = `<strong>Pensamiento:</strong><br><span class="reasoning-text"></span>`;
-                  chatMessages.insertBefore(reasoningDiv, botMessageDiv);
-                  window.reasoningContainer = reasoningDiv.querySelector('.reasoning-text');
-                }
-                window.reasoningContainer.innerHTML += delta.reasoning_content;
-                reasoningText += delta.reasoning_content;
+
+              // Soporte para modelo de imagen
+              if (parsed.content) {
+                botResponse += parsed.content;
               }
-              if (delta.content) botResponse += delta.content;
-            } catch { /* ignoramos parseos fallidos */ }
+
+              // Soporte para modelos normales
+              if (
+                parsed.choices &&
+                parsed.choices.length > 0 &&
+                parsed.choices[0].delta
+              ) {
+                const delta = parsed.choices[0].delta;
+
+                if (delta.reasoning_content) {
+                  if (!window.reasoningContainer) {
+                    const reasoningDiv = document.createElement('div');
+                    reasoningDiv.className = 'message bot-message reasoning-message';
+                    reasoningDiv.innerHTML = `<strong>Pensamiento:</strong><br><span class="reasoning-text"></span>`;
+                    chatMessages.insertBefore(reasoningDiv, botMessageDiv);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                    window.reasoningContainer = reasoningDiv.querySelector('.reasoning-text');
+                  }
+                  window.reasoningContainer.innerHTML += delta.reasoning_content;
+                  reasoningText += delta.reasoning_content;
+                }
+
+                if (delta.content) {
+                  botResponse += delta.content;
+                }
+              }
+            } catch (error) {
+              console.error("Error al parsear JSON:", error);
+            }
           }
+
         }
         botMessageDiv.innerHTML = marked.parse(botResponse);
         enhanceMessage(botMessageDiv);

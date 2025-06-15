@@ -660,6 +660,33 @@
     if (typeof MathJax !== 'undefined') {
       MathJax.typesetPromise([messageDiv]).catch((err) => console.error('MathJax error:', err));
     }
+
+    // Añadir botón de descarga a cada imagen
+    const images = messageDiv.querySelectorAll('img');
+    images.forEach((img) => {
+      const container = document.createElement('div');
+      container.className = 'image-download-wrapper';
+      container.style.position = 'relative';
+      container.style.display = 'inline-block';
+      container.style.marginBottom = '1rem';
+
+      const downloadBtn = document.createElement('a');
+      downloadBtn.href = img.src;
+      downloadBtn.download = 'imagen_arex.png';
+      downloadBtn.className = 'download-btn';
+
+      downloadBtn.innerHTML = `
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+      `;
+
+      img.parentElement.insertBefore(container, img);
+      container.appendChild(img);
+      container.appendChild(downloadBtn);
+    });
   }
 
   // ENVÍO DE MENSAJES Y RESPUESTA DE LA API

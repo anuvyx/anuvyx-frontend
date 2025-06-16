@@ -235,29 +235,18 @@ body {
   align-items: center;
 }
 
-.header-title-menu {
-  position: absolute;
-  left: 0;
-  top: 100%;
-  background: var(--color-menu-bg);
-  border: 1px solid var(--color-menu-border);
-  border-radius: 4px;
-  padding: 0.5rem 0;
-  z-index: 1000;
+.header-title-toggle-btn:hover {
+  background: var(--color-gold);
+  color: var(--color-black-text);
+  border-radius: 50%;
 }
 
-.header-title-menu button {
-  background: none;
-  border: none;
-  color: #fff;
-  padding: 0.5rem 1rem;
-  text-align: left;
-  width: 100%;
-  cursor: pointer;
+.header-title-menu .active {
+  background: var(--color-gold) !important;
 }
 
-.header-title-menu button:hover {
-  background: var(--color-menu-border);
+.header-title-menu .active div {
+  color: var(--color-black-text) !important;
 }
 
 .logo-title-container {
@@ -435,14 +424,15 @@ body {
   transition: background var(--transition-speed) ease;
 }
 
+.chat-option svg:hover,
 .chat-option:hover {
-  background: var(--color-border);
+  background: var(--color-gold);
+  color: var(--color-black-text);
 }
 
 .chat-option svg {
   width: 16px;
   height: 16px;
-  stroke: var(--color-white);
 }
 
 .chat-item:hover {

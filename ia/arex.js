@@ -212,15 +212,25 @@
         const storedTitle = localStorage.getItem('chatHeaderTitle') || 'AREX';
         if (storedTitle === title) {
           container.classList.add('active');
-          container.style.backgroundColor = 'rgba(227,227,227,0.1)';
+          container.style.backgroundColor = 'var(--color-gold)';
+          container.style.color = 'var(--color-black-text)';
+          titleElem.style.color = 'var(--color-black-text)';
+          desc.style.color = descriptionColor;
         } else {
           container.classList.remove('active');
           container.style.backgroundColor = 'transparent';
+          container.style.color = '#fff';
+          titleElem.style.color = '#fff';
+          desc.style.color = descriptionColor;
         }
       };
 
       container.addEventListener('mouseenter', function () {
-        if (!disabled) container.style.backgroundColor = '#333';
+        if (!disabled) {
+          container.style.backgroundColor = 'var(--color-gold)';
+          titleElem.style.color = 'var(--color-black-text)';
+          desc.style.color = 'var(--color-black-text)';
+        }
       });
       container.addEventListener('mouseleave', function () {
         if (!disabled) updateBackground();
@@ -234,7 +244,6 @@
             sibling.style.backgroundColor = 'transparent';
           }
           container.classList.add('active');
-          container.style.backgroundColor = 'rgba(227,227,227,0.1)';
           document.getElementById('chatHeaderTitle').textContent = title;
           localStorage.setItem('chatHeaderTitle', title);
           menu.remove();
@@ -257,7 +266,6 @@
       const storedTitle = localStorage.getItem('chatHeaderTitle') || 'AREX';
       if (storedTitle === title && !disabled) {
         container.classList.add('active');
-        container.style.backgroundColor = 'rgba(227,227,227,0.1)';
       }
 
       const desc = document.createElement('div');
@@ -272,7 +280,7 @@
       return container;
     }
 
-    const optionArexVinci = createOption('AREX VINCI', 'Generación de imagen (Alpha)', '#ADB0B4');
+    const optionArexVinci = createOption('AREX VINCI', 'Generación de imágenes (Alpha)', '#ADB0B4');
     const optionArexThinking = createOption('AREX THINKING', 'Modo de razonamiento avanzado (Versión Beta)', '#ADB0B4');
     const optionArexDeluxe = createOption('AREX DELUXE', 'Tareas complejas que requieren alta precisión y comprensión profunda.', '#ADB0B4');
     const optionArexGold = createOption('AREX GOLD', 'Tareas moderadamente complejas o simples con mayor precisión.', '#ADB0B4');

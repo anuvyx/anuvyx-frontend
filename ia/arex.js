@@ -676,7 +676,8 @@
       container.className = 'image-download-wrapper';
       container.style.position = 'relative';
       container.style.display = 'inline-block';
-      container.style.marginBottom = '1rem';
+      img.style.maxWidth = '500px';
+      img.style.borderRadius = '12px';
 
       const downloadBtn = document.createElement('a');
       downloadBtn.href = img.src;

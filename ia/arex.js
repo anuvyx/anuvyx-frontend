@@ -182,9 +182,11 @@
   // MENÚ DE CAMBIO DE TÍTULO
   document.getElementById('headerTitleToggleBtn').addEventListener('click', function (e) {
     e.stopPropagation();
+    this.classList.toggle('rotated');
     let menu = document.getElementById('headerTitleMenu');
     if (menu) {
       menu.remove();
+      this.classList.remove('rotated');
       return;
     }
     menu = document.createElement('div');
@@ -247,6 +249,7 @@
           document.getElementById('chatHeaderTitle').textContent = title;
           localStorage.setItem('chatHeaderTitle', title);
           menu.remove();
+          document.getElementById('headerTitleToggleBtn').classList.remove('rotated');
         });
       } else {
         container.addEventListener('click', function (e) {

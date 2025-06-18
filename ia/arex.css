@@ -233,12 +233,42 @@ body {
   display: flex;
   color: var(--color-border);
   align-items: center;
+  transition: transform 0.3s ease;
 }
 
 .header-title-toggle-btn:hover {
   background: var(--color-gold);
   color: var(--color-black-text);
   border-radius: 50%;
+}
+
+.header-title-toggle-btn.rotated {
+  transform: rotate(180deg);
+  transition: transform 0.3s ease;
+  background: var(--color-gold);
+  color: var(--color-black-text);
+  border-radius: 50%;
+}
+
+.header-title-menu {
+  background: var(--color-menu-bg);
+  border: 1px solid var(--color-menu-border);
+  border-radius: 8px;
+  padding: 0.5rem 0;
+  margin-top: 8px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+  width: 280px;
+  z-index: 1000;
+  position: absolute;
+}
+
+.header-title-menu > div {
+  color: var(--color-white);
+  border-bottom: 1px solid var(--color-menu-border);
+}
+
+.header-title-menu > div:last-child {
+  border-bottom: none;
 }
 
 .header-title-menu .active {
@@ -1317,5 +1347,11 @@ pre code .token.property {
   
   pre {
     font-size: 0.9em;
+  }
+
+  #headerTitleMenu {
+    left: 50% !important;
+    top: 100px !important;
+    transform: translateX(-50%);
   }
 }

@@ -13,7 +13,7 @@
   --color-white: #ffffff;
   --color-red: rgba(255, 0, 0, 0.9);
   --color-blue: #0071e3;
-  --color-gold: #d4a944;
+  --color-gold: #ffaa00; /* Antes #d4a944 */
   --color-menu-bg: #111;
   --color-menu-border: #333;
   --color-hover-dark: #40414491;
@@ -613,14 +613,35 @@ body {
   align-items: center;
 }
 
+/* ---------- PENSAMIENTO ---------- */
 .reasoning-message {
   background-color: #1f1f1f;
   border-left: 4px solid #ffaa00;
   padding: 8px 12px;
-  margin-bottom: 10px;
   border-radius: 6px;
   font-style: italic;
   color: #f0f0f0;
+}
+
+.reasoning-toggle-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: .3rem;
+  margin-left: .5rem;
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-border);
+  transition: transform .3s ease;
+}
+.reasoning-toggle-btn:hover {
+  background: var(--color-gold);
+  color: var(--color-black-text);
+  border-radius: 50%;
+}
+
+.reasoning-toggle-btn.rotated {
+  transform: rotate(180deg);
 }
 
 /* ÁREA DE ENTRADA DE MENSAJES */

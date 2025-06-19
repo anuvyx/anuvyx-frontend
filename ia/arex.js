@@ -456,6 +456,41 @@
     }
   };
 
+  function createReasoningBlock() {
+    const reasoningDiv = document.createElement('div');
+    reasoningDiv.className = 'message bot-message reasoning-message';
+
+    const header = document.createElement('div');
+    header.style.display = 'flex';
+    header.style.alignItems = 'center';
+
+    const title = document.createElement('strong');
+    title.textContent = 'Pensamiento';
+
+    const toggleBtn = document.createElement('button');
+    toggleBtn.className = 'reasoning-toggle-btn';
+    toggleBtn.innerHTML = `
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>`;
+    toggleBtn.addEventListener('click', () => {
+      toggleBtn.classList.toggle('rotated');
+      content.style.display =
+        content.style.display === 'none' ? '' : 'none';
+    });
+
+    header.append(title, toggleBtn);
+
+    const content = document.createElement('div');
+    const textSpan = document.createElement('span');
+    textSpan.className = 'reasoning-text';
+    content.appendChild(textSpan);
+
+    reasoningDiv.append(header, content);
+    return { reasoningDiv, textSpan };
+  }
+
   // MENSAJES Y NUEVO CHAT
   const loadChatMessages = () => {
     const chat = chats.find((c) => c.id === currentChatId);
@@ -463,10 +498,9 @@
     chatMessages.innerHTML = '';
     chat.messages.forEach((msg) => {
       if (msg.isReasoning) {
-        const reasoningDiv = document.createElement('div');
-        reasoningDiv.className = 'message bot-message reasoning-message';
-        reasoningDiv.innerHTML = `<strong>Pensamiento:</strong><br><span class="reasoning-text">${msg.content}</span>`;
-        chatMessages.appendChild(reasoningDiv);
+          const { reasoningDiv, textSpan } = createReasoningBlock();
+          textSpan.innerHTML = msg.content;
+          chatMessages.appendChild(reasoningDiv);
       } else if (msg.isUser) {
         displayMessage(msg.displayContent || msg.content, true);
       } else {
@@ -829,12 +863,9 @@
 
                   if (delta.reasoning_content) {
                     if (!window.reasoningContainer) {
-                      const reasoningDiv = document.createElement('div');
-                      reasoningDiv.className = 'message bot-message reasoning-message';
-                      reasoningDiv.innerHTML = `<strong>Pensamiento:</strong><br><span class="reasoning-text"></span>`;
+                      const { reasoningDiv, textSpan } = createReasoningBlock();
                       chatMessages.insertBefore(reasoningDiv, botMessageDiv);
-                      chatMessages.scrollTop = chatMessages.scrollHeight;
-                      window.reasoningContainer = reasoningDiv.querySelector('.reasoning-text');
+                      window.reasoningContainer = textSpan;  
                     }
                     window.reasoningContainer.innerHTML += delta.reasoning_content;
                     reasoningText += delta.reasoning_content;
@@ -1013,12 +1044,9 @@
 
                 if (delta.reasoning_content) {
                   if (!window.reasoningContainer) {
-                    const reasoningDiv = document.createElement('div');
-                    reasoningDiv.className = 'message bot-message reasoning-message';
-                    reasoningDiv.innerHTML = `<strong>Pensamiento:</strong><br><span class="reasoning-text"></span>`;
+                    const { reasoningDiv, textSpan } = createReasoningBlock();
                     chatMessages.insertBefore(reasoningDiv, botMessageDiv);
-                    chatMessages.scrollTop = chatMessages.scrollHeight;
-                    window.reasoningContainer = reasoningDiv.querySelector('.reasoning-text');
+                    window.reasoningContainer = textSpan; 
                   }
                   window.reasoningContainer.innerHTML += delta.reasoning_content;
                   reasoningText += delta.reasoning_content;
@@ -1152,12 +1180,9 @@
 
                 if (delta.reasoning_content) {
                   if (!window.reasoningContainer) {
-                    const reasoningDiv = document.createElement('div');
-                    reasoningDiv.className = 'message bot-message reasoning-message';
-                    reasoningDiv.innerHTML = `<strong>Pensamiento:</strong><br><span class="reasoning-text"></span>`;
+                    const { reasoningDiv, textSpan } = createReasoningBlock();
                     chatMessages.insertBefore(reasoningDiv, botMessageDiv);
-                    chatMessages.scrollTop = chatMessages.scrollHeight;
-                    window.reasoningContainer = reasoningDiv.querySelector('.reasoning-text');
+                    window.reasoningContainer = textSpan;
                   }
                   window.reasoningContainer.innerHTML += delta.reasoning_content;
                   reasoningText += delta.reasoning_content;

@@ -475,9 +475,10 @@
         <polyline points="6 9 12 15 18 9"></polyline>
       </svg>`;
     toggleBtn.addEventListener('click', () => {
-      toggleBtn.classList.toggle('rotated');
-      content.style.display =
-        content.style.display === 'none' ? '' : 'none';
+      const isNowOpen = content.style.display === 'none';
+      content.style.display = isNowOpen ? '' : 'none';
+      toggleBtn.classList.toggle('rotated', isNowOpen);
+      localStorage.setItem(`reasoningVisible_${currentChatId}`, isNowOpen ? 'true' : 'false');
     });
 
     header.append(title, toggleBtn);
@@ -488,6 +489,10 @@
     content.appendChild(textSpan);
 
     reasoningDiv.append(header, content);
+    const storedVisibility = localStorage.getItem(`reasoningVisible_${currentChatId}`);
+    const shouldShow = storedVisibility !== 'false'; 
+    content.style.display = shouldShow ? '' : 'none';
+    toggleBtn.classList.toggle('rotated', shouldShow);
     return { reasoningDiv, textSpan };
   }
 

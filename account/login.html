@@ -279,7 +279,7 @@
           const confirmPassword = document.getElementById('confirmPassword').value;
 
           if (!isStrongPassword(password)) {
-            alert('La contraseña debe tener al menos 8 caracteres, incluyendo mayúsculas, minúsculas, un número y un símbolo.');
+            alert('La contraseña debe tener al menos 8 caracteres, incluyendo mayúsculas, minúsculas, un número y un carácter especial.');
             signUpButton.disabled = false;
             signUpButton.innerHTML = originalText;
             return;

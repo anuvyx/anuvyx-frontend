@@ -173,6 +173,12 @@
       });
     }
 
+    function isStrongPassword(password) {
+      const minLength = 8;
+      const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/;
+      return password.length >= minLength && regex.test(password);
+    }
+
     function executeRecaptcha(action) {
       return new Promise((resolve, reject) => {
         grecaptcha.ready(() => {
@@ -269,11 +275,28 @@
         try {
           const token = await executeRecaptcha('signup');
           document.getElementById('recaptchaToken').value = token;
+          const password = document.getElementById('passwordSignUp').value;
+          const confirmPassword = document.getElementById('confirmPassword').value;
+
+          if (!isStrongPassword(password)) {
+            alert('La contraseña debe tener al menos 8 caracteres, incluyendo mayúsculas, minúsculas, un número y un símbolo.');
+            signUpButton.disabled = false;
+            signUpButton.innerHTML = originalText;
+            return;
+          }
+
+          if (password !== confirmPassword) {
+            alert('Las contraseñas no coinciden.');
+            signUpButton.disabled = false;
+            signUpButton.innerHTML = originalText;
+            return;
+          }
+
           const formData = {
             name: document.getElementById('name').value,
             email: document.getElementById('emailSignUp').value,
-            password: document.getElementById('passwordSignUp').value,
-            confirmPassword: document.getElementById('confirmPassword').value,
+            password,
+            confirmPassword,
             recaptchaToken: token
           };
           const response = await fetch('https://anuvyx-backend.vercel.app/api/register', {

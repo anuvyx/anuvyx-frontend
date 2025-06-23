@@ -504,8 +504,9 @@
           };
 
           if (newPassword) {
-            payload.currentPassword = currentPassword;
-            payload.newPassword    = newPassword;
+            payload.currentPassword     = currentPassword;
+            payload.newPassword         = newPassword;
+            payload.confirmNewPassword  = confirmNewPassword;
           }
 
           try {
@@ -589,11 +590,16 @@
         if (!pwdConfirm) return alert("Operación cancelada.");
 
         try {
+          const token = localStorage.getItem("authToken");
+
           const res = await fetch(
             "https://anuvyx-backend.vercel.app/api/delete-account",
             {
               method: "DELETE",
-              headers: { "Content-Type": "application/json" },
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token
+              },
               body: JSON.stringify({
                 email: emailConfirm,
                 password: pwdConfirm,

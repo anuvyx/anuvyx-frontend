@@ -612,6 +612,72 @@
     return copyButton;
   }
 
+  function createReloadButton(rawContent) {
+    const reloadButton = document.createElement('button');
+    reloadButton.className = 'reload-button';
+    Object.assign(reloadButton.style, {
+      padding: '5px',
+      backgroundColor: 'transparent',
+      border: 'none',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center'
+    });
+
+    reloadButton.innerHTML = `
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
+        <polyline points="23 4 23 10 17 10"></polyline>
+        <polyline points="1 20 1 14 7 14"></polyline>
+        <path d="M3.51 9a9 9 0 0 1 14.13-3.36L23 10"></path>
+        <path d="M20.49 15A9 9 0 0 1 5.85 18.36L1 14"></path>
+      </svg>
+    `;
+
+    reloadButton.addEventListener('click', () => {
+      const chat = chats.find(c => c.id === currentChatId);
+      if (!chat) return;
+      const lastBotIndex = [...chat.messages].reverse().findIndex(m => !m.isUser && m.content === rawContent);
+      if (lastBotIndex !== -1) {
+        const trueIndex = chat.messages.length - 1 - lastBotIndex;
+        chat.messages = chat.messages.slice(0, trueIndex);
+        saveChatsToStorage();
+        loadChatMessages();
+        resendAfterEdit();
+      }
+    });
+
+    return reloadButton;
+  }
+
+  function createEditButton(content, onEditConfirmed) {
+    const editButton = document.createElement('button');
+    editButton.className = 'edit-button';
+    Object.assign(editButton.style, {
+      padding: '5px',
+      backgroundColor: 'transparent',
+      border: 'none',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center'
+    });
+
+    editButton.innerHTML = `
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
+        <path d="M12 20h9"></path>
+        <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>
+      </svg>
+    `;
+
+    editButton.addEventListener('click', async () => {
+      const newText = await showCustomPrompt("Editar mensaje:", content);
+      if (newText !== null && newText.trim()) {
+        onEditConfirmed(newText.trim());
+      }
+    });
+
+    return editButton;
+  }
+
   function appendCopyButton(messageDiv, rawContent, isUser) {
     const copyButtonContainer = document.createElement('div');
     copyButtonContainer.style.display = 'flex';
@@ -622,78 +688,48 @@
     copyButtonContainer.appendChild(copyBtn);
 
     if (!isUser && rawContent !== "¡Hola! Soy Arex, el asistente de IA de Anuvyx.\n\n¿En qué puedo ayudarte hoy?\n") {
-      const reloadButton = document.createElement('button');
-      reloadButton.className = 'reload-button';
-      reloadButton.style.padding = '5px';
-      reloadButton.style.backgroundColor = 'transparent';
-      reloadButton.style.border = 'none';
-      reloadButton.style.cursor = 'pointer';
-      reloadButton.style.display = 'flex';
-      reloadButton.style.alignItems = 'center';
-      reloadButton.innerHTML = `
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
-          <polyline points="23 4 23 10 17 10"></polyline>
-          <polyline points="1 20 1 14 7 14"></polyline>
-          <path d="M3.51 9a9 9 0 0 1 14.13-3.36L23 10"></path>
-          <path d="M20.49 15A9 9 0 0 1 5.85 18.36L1 14"></path>
-        </svg>
-      `;
-
-      reloadButton.addEventListener('click', () => {
-        const chat = chats.find(c => c.id === currentChatId);
-        if (!chat) return;
-        const lastBotIndex = [...chat.messages].reverse().findIndex(m => !m.isUser && m.content === rawContent);
-        if (lastBotIndex !== -1) {
-          const trueIndex = chat.messages.length - 1 - lastBotIndex;
-          chat.messages = chat.messages.slice(0, trueIndex);
-          saveChatsToStorage();
-          loadChatMessages();
-          resendAfterEdit();
-        }
-      });
-
-      copyButtonContainer.appendChild(reloadButton);
+      copyButtonContainer.appendChild(createReloadButton(rawContent));
     }
 
     messageDiv.after(copyButtonContainer); 
   }
 
-  // MEJORA DEL FORMATO DE LOS MENSAJES
-  function enhanceMessage(messageDiv) {
-    const codeBlocks = messageDiv.querySelectorAll('pre > code');
+  function enhanceCodeBlocks(container) {
+    const codeBlocks = container.querySelectorAll('pre > code');
     codeBlocks.forEach((codeBlock) => {
       const preBlock = codeBlock.parentElement;
 
-      if (preBlock.previousElementSibling && preBlock.previousElementSibling.classList.contains('code-header')) {
-        return;
-      }
+      // Evitar duplicación si ya fue procesado
+      if (preBlock.previousElementSibling?.classList.contains('code-header')) return;
 
       const language = codeBlock.className.replace('language-', '') || 'plaintext';
+
+      // Crear encabezado
       const header = document.createElement('div');
       header.classList.add('code-header');
 
       const languageSpan = document.createElement('span');
       languageSpan.textContent = language;
 
-      const copyIcon = document.createElement('button');
-      copyIcon.classList.add('copy-icon');
-      copyIcon.innerHTML = `
+      // Botón de copiar
+      const copyBtn = document.createElement('button');
+      copyBtn.classList.add('copy-icon');
+      copyBtn.innerHTML = `
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
           <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
           <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
         </svg>
       `;
-
-      copyIcon.addEventListener('click', () => {
+      copyBtn.addEventListener('click', () => {
         navigator.clipboard.writeText(codeBlock.textContent)
           .then(() => {
-            copyIcon.innerHTML = `
+            copyBtn.innerHTML = `
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
             `;
             setTimeout(() => {
-              copyIcon.innerHTML = `
+              copyBtn.innerHTML = `
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
                   <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
                   <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
@@ -703,13 +739,17 @@
           });
       });
 
-      header.appendChild(languageSpan);
-      header.appendChild(copyIcon);
+      header.append(languageSpan, copyBtn);
       preBlock.parentElement.insertBefore(header, preBlock);
       preBlock.classList.add('line-numbers');
       preBlock.setAttribute('data-lang', language);
       Prism.highlightElement(codeBlock);
     });
+  }
+
+  // MEJORA DEL FORMATO DE LOS MENSAJES
+  function enhanceMessage(messageDiv) {
+    enhanceCodeBlocks(messageDiv);
 
     if (typeof MathJax !== 'undefined') {
       MathJax.typesetPromise([messageDiv]).catch((err) => console.error('MathJax error:', err));
@@ -762,6 +802,140 @@
     `;
     sendBtn.style.backgroundColor = '#ffffff';
     sendBtn.onclick = sendMessage;
+  }
+
+  async function streamBotResponse({ reader, chat, chatMessages, chatHeaderTitle, insertBeforeEl = null }) {
+    const decoder = new TextDecoder('utf-8');
+    let botResponse = '';
+    let reasoningText = '';
+
+    const botMessageDiv = document.createElement('div');
+    botMessageDiv.className = 'message bot-message';
+
+    if (insertBeforeEl) {
+      chatMessages.insertBefore(botMessageDiv, insertBeforeEl);
+    } else {
+      chatMessages.appendChild(botMessageDiv);
+    }
+
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const chunk = decoder.decode(value);
+      const lines = chunk.split('\n');
+      for (let line of lines) {
+        line = line.trim();
+        if (!line) continue;
+        if (line.startsWith('data:')) {
+          let jsonStr = line.replace(/^(data:\s*)+/i, '');
+          if (jsonStr === '[DONE]') break;
+
+          try {
+            const parsed = JSON.parse(jsonStr);
+
+            if (parsed.content) {
+              botResponse += parsed.content;
+            }
+
+            if (parsed.choices && parsed.choices.length > 0 && parsed.choices[0].delta) {
+              const delta = parsed.choices[0].delta;
+
+              if (delta.reasoning_content) {
+                if (!window.reasoningContainer) {
+                  const { reasoningDiv, textSpan } = createReasoningBlock();
+                  chatMessages.insertBefore(reasoningDiv, botMessageDiv);
+                  window.reasoningContainer = textSpan;
+                }
+                window.reasoningContainer.innerHTML += delta.reasoning_content;
+                reasoningText += delta.reasoning_content;
+              }
+
+              if (delta.content) {
+                botResponse += delta.content;
+              }
+            }
+          } catch (error) {
+            console.error("Error al parsear JSON:", error);
+          }
+        }
+      }
+
+      botMessageDiv.innerHTML = marked.parse(botResponse);
+      enhanceMessage(botMessageDiv);
+      if (shouldAutoScroll()) {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+    }
+
+    enhanceMessage(botMessageDiv);
+    appendCopyButton(botMessageDiv, botResponse, false);
+
+    if (reasoningText.trim()) {
+      chat.messages.push({
+        content: reasoningText.trim(),
+        isUser: false,
+        isReasoning: true,
+        timestamp: Date.now()
+      });
+    }
+
+    chat.messages.push({
+      content: botResponse,
+      isUser: false,
+      timestamp: Date.now(),
+      fuentesData: []
+    });
+
+    return { botResponse, reasoningText };
+  }
+
+  function appendSourcesButton(messageDiv, fuentesData) {
+    if (!fuentesData || fuentesData.length === 0) return;
+
+    const fuentesBtn = document.createElement('button');
+    fuentesBtn.textContent = 'Fuentes';
+    fuentesBtn.classList.add('fuentes-btn');
+    messageDiv.appendChild(fuentesBtn);
+
+    fuentesBtn.addEventListener('click', () => {
+      let fuentesSidebar = document.getElementById('fuentesSidebar');
+
+      if (!fuentesSidebar) {
+        fuentesSidebar = document.createElement('div');
+        fuentesSidebar.id = 'fuentesSidebar';
+        fuentesSidebar.classList.add('fuentes-sidebar');
+        fuentesSidebar.innerHTML = `
+          <button id="fuentesCloseBtn" class="fuentes-close-btn">X</button>
+          <h3>Fuentes Consultadas</h3>
+          <ul id="fuentesList"></ul>
+        `;
+        document.body.appendChild(fuentesSidebar);
+      }
+
+      const fuentesList = document.getElementById('fuentesList');
+      fuentesList.innerHTML = '';
+
+      const topFuentes = fuentesData.slice(0, 10);
+      topFuentes.forEach((result, index) => {
+        let snippet = result.snippet;
+        if (snippet && snippet.length > 150) {
+          snippet = snippet.substring(0, 150) + '...';
+        }
+
+        const li = document.createElement('li');
+        li.style.marginBottom = '10px';
+        li.innerHTML = `<strong>${index + 1}.</strong> <a href="${result.url}" target="_blank">${result.title}</a><br><small>${snippet || ''}</small>`;
+        fuentesList.appendChild(li);
+      });
+
+      fuentesSidebar.classList.add('open');
+
+      document.getElementById('fuentesCloseBtn').addEventListener('click', () => {
+        fuentesSidebar.classList.remove('open');
+      });
+    });
   }
 
   // ENVÍO DE MENSAJES Y RESPUESTA DE LA API
@@ -932,44 +1106,8 @@
 
         let fuentesData = data.results || [];
 
-        const fuentesBtn = document.createElement('button');
-        fuentesBtn.textContent = 'Fuentes';
-        fuentesBtn.classList.add('fuentes-btn');
-        botMessageDiv.appendChild(fuentesBtn);
+        appendSourcesButton(botMessageDiv, fuentesData);
 
-        let fuentesSidebar = document.getElementById('fuentesSidebar');
-        if (!fuentesSidebar) {
-          fuentesSidebar = document.createElement('div');
-          fuentesSidebar.id = 'fuentesSidebar';
-          fuentesSidebar.classList.add('fuentes-sidebar');
-          fuentesSidebar.innerHTML = `
-            <button id="fuentesCloseBtn" class="fuentes-close-btn">X</button>
-            <h3>Fuentes Consultadas</h3>
-            <ul id="fuentesList"></ul>
-          `;
-          document.body.appendChild(fuentesSidebar);
-        }
-
-        fuentesBtn.addEventListener('click', () => {
-          const fuentesList = document.getElementById('fuentesList');
-          fuentesList.innerHTML = '';
-          const topFuentes = fuentesData.slice(0, 10);
-          topFuentes.forEach((result, index) => {
-            let snippet = result.snippet;
-            if (snippet && snippet.length > 150) {
-              snippet = snippet.substring(0, 150) + '...';
-            }
-            const li = document.createElement('li');
-            li.style.marginBottom = '10px';
-            li.innerHTML = `<strong>${index + 1}.</strong> <a href="${result.url}" target="_blank">${result.title}</a><br><small>${snippet || ''}</small>`;
-            fuentesList.appendChild(li);
-          });
-          fuentesSidebar.classList.add('open');
-        });
-
-        document.getElementById('fuentesCloseBtn').addEventListener('click', () => {
-          fuentesSidebar.classList.remove('open');
-        });
       } catch (error) {
         console.error('Error en la búsqueda o en el procesamiento:', error);
         displayMessage('Error al realizar la búsqueda o procesar la respuesta.', false);
@@ -1021,83 +1159,8 @@
       chatMessages.scrollTop = chatMessages.scrollHeight;
 
       const reader = response.body.getReader();
-      const decoder = new TextDecoder('utf-8');
-      let botResponse = '';
-      let reasoningText = '';
+      await streamBotResponse({ reader, chat, chatMessages, chatHeaderTitle: document.getElementById('chatHeaderTitle').textContent });
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value);
-        const lines = chunk.split('\n');
-        for (let line of lines) {
-          line = line.trim();
-          if (!line) continue;
-          if (line.startsWith('data:')) {
-            let jsonStr = line.replace(/^(data:\s*)+/i, '');
-            if (jsonStr === '[DONE]') break;
-
-            try {
-              const parsed = JSON.parse(jsonStr);
-
-              // Soporte para modelo de imagen
-              if (parsed.content) {
-                botResponse += parsed.content;
-              }
-
-              // Soporte para modelos normales
-              if (
-                parsed.choices &&
-                parsed.choices.length > 0 &&
-                parsed.choices[0].delta
-              ) {
-                const delta = parsed.choices[0].delta;
-
-                if (delta.reasoning_content) {
-                  if (!window.reasoningContainer) {
-                    const { reasoningDiv, textSpan } = createReasoningBlock();
-                    chatMessages.insertBefore(reasoningDiv, botMessageDiv);
-                    window.reasoningContainer = textSpan; 
-                  }
-                  window.reasoningContainer.innerHTML += delta.reasoning_content;
-                  reasoningText += delta.reasoning_content;
-                }
-
-                if (delta.content) {
-                  botResponse += delta.content;
-                }
-              }
-            } catch (error) {
-              console.error("Error al parsear JSON:", error);
-            }
-          }
-
-        }
-        botMessageDiv.innerHTML = marked.parse(botResponse);
-        enhanceMessage(botMessageDiv);
-        if (shouldAutoScroll()) {
-          chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-      }
-
-      enhanceMessage(botMessageDiv);
-      appendCopyButton(botMessageDiv, botResponse, false);
-
-      if (reasoningText.trim()) {
-        chat.messages.push({
-          content: reasoningText.trim(),
-          isUser: false,
-          isReasoning: true,
-          timestamp: Date.now()
-        });
-      }
-      
-      chat.messages.push({
-        content: botResponse,
-        isUser: false,
-        timestamp: Date.now(),
-        fuentesData: []
-      });
       touchCurrentChat();
       saveChatsToStorage();
     } catch (error) {
@@ -1147,80 +1210,7 @@
       chatMessages.scrollTop = chatMessages.scrollHeight;
 
       const reader = response.body.getReader();
-      const decoder = new TextDecoder('utf-8');
-      let botResponse = '';
-      let reasoningText = '';
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value);
-        for (let line of chunk.split('\n')) {
-          line = line.trim();
-          if (!line) continue;
-          if (line.startsWith('data:')) {
-            let jsonStr = line.replace(/^(data:\s*)+/i, '');
-            if (jsonStr === '[DONE]') break;
-
-            try {
-              const parsed = JSON.parse(jsonStr);
-
-              // Soporte para modelo de imagen
-              if (parsed.content) {
-                botResponse += parsed.content;
-              }
-
-              // Soporte para modelos normales
-              if (
-                parsed.choices &&
-                parsed.choices.length > 0 &&
-                parsed.choices[0].delta
-              ) {
-                const delta = parsed.choices[0].delta;
-
-                if (delta.reasoning_content) {
-                  if (!window.reasoningContainer) {
-                    const { reasoningDiv, textSpan } = createReasoningBlock();
-                    chatMessages.insertBefore(reasoningDiv, botMessageDiv);
-                    window.reasoningContainer = textSpan;
-                  }
-                  window.reasoningContainer.innerHTML += delta.reasoning_content;
-                  reasoningText += delta.reasoning_content;
-                }
-
-                if (delta.content) {
-                  botResponse += delta.content;
-                }
-              }
-            } catch (error) {
-              console.error("Error al parsear JSON:", error);
-            }
-          }
-
-        }
-        botMessageDiv.innerHTML = marked.parse(botResponse);
-        enhanceMessage(botMessageDiv);
-        if (shouldAutoScroll()) chatMessages.scrollTop = chatMessages.scrollHeight;
-      }
-
-      enhanceMessage(botMessageDiv);
-      appendCopyButton(botMessageDiv, botResponse, false);
-
-      if (reasoningText.trim()) {
-        chat.messages.push({
-          content: reasoningText.trim(),
-          isUser: false,
-          isReasoning: true,
-          timestamp: Date.now()
-        });
-      }
-
-      chat.messages.push({
-        content: botResponse,
-        isUser: false,
-        timestamp: Date.now(),
-        fuentesData: []
-      });
+      await streamBotResponse({ reader, chat, chatMessages, chatHeaderTitle: document.getElementById('chatHeaderTitle').textContent });
 
       saveChatsToStorage();
     } catch (err) {
@@ -1320,48 +1310,8 @@
           .replace(/\\boxed\{(.+?)\}/g, (match) => `\\boxed{${match.slice(7, -1)}}`);
         const tempContainer = document.createElement('div');
         tempContainer.innerHTML = processedContent;
-        const codeBlocks = tempContainer.querySelectorAll('pre > code');
-        codeBlocks.forEach((codeBlock) => {
-          const language = codeBlock.className.replace('language-', '') || 'plaintext';
-          const header = document.createElement('div');
-          header.classList.add('code-header');
-          const languageSpan = document.createElement('span');
-          languageSpan.textContent = language;
-          const copyIcon = document.createElement('button');
-          copyIcon.classList.add('copy-icon');
-          copyIcon.innerHTML = `
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
-              <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-              <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-            </svg>
-          `;
-          copyIcon.addEventListener('click', () => {
-            navigator.clipboard.writeText(codeBlock.textContent)
-              .then(() => {
-                copyIcon.innerHTML = `
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                  </svg>
-                `;
-                setTimeout(() => {
-                  copyIcon.innerHTML = `
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
-                      <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                      <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-                    </svg>
-                  `;
-                }, 2000);
-              })
-              .catch((err) => console.error('Error al copiar el código:', err));
-          });
-          header.appendChild(languageSpan);
-          header.appendChild(copyIcon);
-          const preBlock = codeBlock.parentElement;
-          preBlock.parentElement.insertBefore(header, preBlock);
-          preBlock.classList.add('line-numbers');
-          preBlock.setAttribute('data-lang', language);
-          Prism.highlightElement(codeBlock);
-        });
+        enhanceCodeBlocks(messageDiv);
+        
         while (tempContainer.firstChild) {
           messageDiv.appendChild(tempContainer.firstChild);
         }
@@ -1374,42 +1324,7 @@
     enhanceMessage(messageDiv);
 
     if (!isUser && options.fuentesData && options.fuentesData.length > 0) {
-      const fuentesBtn = document.createElement('button');
-      fuentesBtn.textContent = 'Fuentes';
-      fuentesBtn.classList.add('fuentes-btn');
-      messageDiv.appendChild(fuentesBtn);
-
-      fuentesBtn.addEventListener('click', () => {
-        let fuentesSidebar = document.getElementById('fuentesSidebar');
-        if (!fuentesSidebar) {
-          fuentesSidebar = document.createElement('div');
-          fuentesSidebar.id = 'fuentesSidebar';
-          fuentesSidebar.classList.add('fuentes-sidebar');
-          fuentesSidebar.innerHTML = `
-            <button id="fuentesCloseBtn" class="fuentes-close-btn">X</button>
-            <h3>Fuentes Consultadas</h3>
-            <ul id="fuentesList"></ul>
-          `;
-          document.body.appendChild(fuentesSidebar);
-        }
-        const fuentesList = document.getElementById('fuentesList');
-        fuentesList.innerHTML = '';
-        const topFuentes = options.fuentesData.slice(0, 10);
-        topFuentes.forEach((result, index) => {
-          let snippet = result.snippet;
-          if (snippet && snippet.length > 150) {
-            snippet = snippet.substring(0, 150) + '...';
-          }
-          const li = document.createElement('li');
-          li.style.marginBottom = '10px';
-          li.innerHTML = `<strong>${index + 1}.</strong> <a href="${result.url}" target="_blank">${result.title}</a><br><small>${snippet || ''}</small>`;
-          fuentesList.appendChild(li);
-        });
-        fuentesSidebar.classList.add('open');
-        document.getElementById('fuentesCloseBtn').addEventListener('click', () => {
-          fuentesSidebar.classList.remove('open');
-        });
-      });
+      appendSourcesButton(messageDiv, options.fuentesData);
     }
 
     const copyButtonContainer = document.createElement('div');
@@ -1420,78 +1335,28 @@
     copyButtonContainer.appendChild(copyBtn);
 
     if (!isUser && content !== "¡Hola! Soy Arex, el asistente de IA de Anuvyx.\n\n¿En qué puedo ayudarte hoy?\n") {
-      const reloadButton = document.createElement('button');
-      reloadButton.className = 'reload-button';
-      reloadButton.style.padding = '5px';
-      reloadButton.style.backgroundColor = 'transparent';
-      reloadButton.style.border = 'none';
-      reloadButton.style.cursor = 'pointer';
-      reloadButton.style.display = 'flex';
-      reloadButton.style.alignItems = 'center';
-      reloadButton.innerHTML = `
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
-          <polyline points="23 4 23 10 17 10"></polyline>
-          <polyline points="1 20 1 14 7 14"></polyline>
-          <path d="M3.51 9a9 9 0 0 1 14.13-3.36L23 10"></path>
-          <path d="M20.49 15A9 9 0 0 1 5.85 18.36L1 14"></path>
-        </svg>
-      `;
+      copyButtonContainer.appendChild(createReloadButton(rawContent));
+    }
 
-      reloadButton.addEventListener('click', () => {
+    chatMessages.appendChild(copyButtonContainer);
+
+    if (isUser) {
+      const editBtn = createEditButton(content, (newText) => {
         const chat = chats.find(c => c.id === currentChatId);
-        if (!chat) return;
-        const lastBotIndex = [...chat.messages].reverse().findIndex(m => !m.isUser && m.content === rawContent);
-        if (lastBotIndex !== -1) {
-          const trueIndex = chat.messages.length - 1 - lastBotIndex;
-          chat.messages = chat.messages.slice(0, trueIndex);
+        const userIndex = chat.messages.findIndex(m => m.content === content && m.isUser);
+
+        if (userIndex !== -1) {
+          chat.messages[userIndex].content = newText;
+          chat.messages[userIndex].displayContent = newText;
+
+          chat.messages = chat.messages.slice(0, userIndex + 1);
           saveChatsToStorage();
           loadChatMessages();
           resendAfterEdit();
         }
       });
 
-      copyButtonContainer.appendChild(reloadButton);
-    }
-
-    chatMessages.appendChild(copyButtonContainer);
-
-    if (isUser) {
-      const editButton = document.createElement('button');
-      editButton.className = 'edit-button';
-      editButton.style.padding = '5px';
-      editButton.style.backgroundColor = 'transparent';
-      editButton.style.border = 'none';
-      editButton.style.cursor = 'pointer';
-      editButton.style.display = 'flex';
-      editButton.style.alignItems = 'center';
-
-      editButton.innerHTML = `
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
-          <path d="M12 20h9"></path>
-          <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>
-        </svg>
-      `;
-      editButton.addEventListener('click', async () => {
-        const newText = await showCustomPrompt("Editar mensaje:", content);
-        if (newText !== null && newText.trim()) {
-          const chat = chats.find(c => c.id === currentChatId);
-          const userIndex = chat.messages.findIndex(m => m.content === content && m.isUser);
-
-          if (userIndex !== -1) {
-            chat.messages[userIndex].content = newText.trim();
-            chat.messages[userIndex].displayContent = newText.trim();
-
-            chat.messages = chat.messages.slice(0, userIndex + 1);
-
-            saveChatsToStorage();
-
-            loadChatMessages();
-
-            resendAfterEdit();
-          }
-        }
-      });
-      copyButtonContainer.appendChild(editButton);
+      copyButtonContainer.appendChild(editBtn);
     }
 
     chatMessages.appendChild(copyButtonContainer);

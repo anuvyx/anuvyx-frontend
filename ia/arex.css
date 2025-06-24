@@ -958,7 +958,9 @@ a {
 }
 
 .fuentes-btn:hover {
-  background: var(--color-hover-dark);
+  background: var(--color-gold);
+  color: var(--color-black-text);
+  border: 1px solid var(--color-gold);
 }
 
 /* SIDEBAR "FUENTES" */
@@ -988,8 +990,17 @@ a {
   color: var(--color-white);
   background: none;
   border: none;
-  font-size: 18px;
+  font-size: 24px;
   cursor: pointer;
+  width: 30px;
+  height: 30px;
+}
+
+.fuentes-close-btn:hover {
+  background: var(--color-gray-hover);
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
 }
 
 .fuentes-sidebar h3 {
@@ -1018,7 +1029,7 @@ a {
 }
 
 .fuentes-sidebar li a:hover {
-  color: #e74c3c;
+  color: var(--color-gold);
 }
 
 /* TABLAS */

@@ -573,12 +573,22 @@
     return { loadingDiv, countdownInterval };
   };
 
-  function appendCopyButton(messageDiv, rawContent, isUser) {
-    const copyButtonContainer = document.createElement('div');
-    copyButtonContainer.style.display = 'flex';
-    copyButtonContainer.style.justifyContent = isUser ? 'flex-end' : 'flex-start';
-    copyButtonContainer.style.marginTop = '5px';
+  function getCopyIcon(isCopied = false) {
+    return isCopied
+      ? `
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      `
+      : `
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
+          <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+          <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+        </svg>
+      `;
+  }
 
+  function createCopyButton(textToCopy) {
     const copyButton = document.createElement('button');
     copyButton.className = 'copy-button';
     copyButton.style.padding = '5px';
@@ -587,35 +597,29 @@
     copyButton.style.cursor = 'pointer';
     copyButton.style.display = 'flex';
     copyButton.style.alignItems = 'center';
-    copyButton.innerHTML = `
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-          stroke="#ffffff" stroke-width="2">
-        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6
-                a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-        <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-      </svg>
-    `;
+
+    copyButton.innerHTML = getCopyIcon(false);
 
     copyButton.addEventListener('click', () => {
-      navigator.clipboard.writeText(rawContent).then(() => {
-        copyButton.innerHTML = `
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-              stroke="#ffffff" stroke-width="2">
-            <polyline points="20 6 9 17 4 12"></polyline>
-          </svg>
-        `;
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        copyButton.innerHTML = getCopyIcon(true);
         setTimeout(() => {
-          copyButton.innerHTML = `
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
-              <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-              <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-            </svg>
-          `;
+          copyButton.innerHTML = getCopyIcon(false);
         }, 2000);
       });
     });
 
-    copyButtonContainer.appendChild(copyButton);
+    return copyButton;
+  }
+
+  function appendCopyButton(messageDiv, rawContent, isUser) {
+    const copyButtonContainer = document.createElement('div');
+    copyButtonContainer.style.display = 'flex';
+    copyButtonContainer.style.justifyContent = isUser ? 'flex-end' : 'flex-start';
+    copyButtonContainer.style.marginTop = '5px';
+
+    const copyBtn = createCopyButton(rawContent);
+    copyButtonContainer.appendChild(copyBtn);
 
     if (!isUser && rawContent !== "¡Hola! Soy Arex, el asistente de IA de Anuvyx.\n\n¿En qué puedo ayudarte hoy?\n") {
       const reloadButton = document.createElement('button');
@@ -740,6 +744,26 @@
     });
   }
 
+  function showCancelSendBtn() {
+    sendBtn.innerHTML = `
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    `;
+    sendBtn.style.backgroundColor = '#FF0000E6';
+    sendBtn.onclick = cancelRequest;
+  }
+
+  function restoreSendBtn() {
+    sendBtn.innerHTML = `
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+      </svg>
+    `;
+    sendBtn.style.backgroundColor = '#ffffff';
+    sendBtn.onclick = sendMessage;
+  }
+
   // ENVÍO DE MENSAJES Y RESPUESTA DE LA API
   const sendMessage = async () => {
     const userText = userInput.value.trim();
@@ -774,13 +798,7 @@
 
       const { loadingDiv, countdownInterval } = showLoadingWithCounter();
       abortController = new AbortController();
-      sendBtn.innerHTML = `
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M6 18L18 6M6 6l12 12"/>
-        </svg>
-      `;
-      sendBtn.style.backgroundColor = '#FF0000E6';
-      sendBtn.onclick = cancelRequest;
+      showCancelSendBtn();
 
       try {
         const response = await fetch('https://arex-backend.vercel.app/api/search', {
@@ -958,13 +976,7 @@
       } finally {
         clearInterval(countdownInterval);
         loadingDiv.remove();
-        sendBtn.innerHTML = `
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
-          </svg>
-        `;
-        sendBtn.style.backgroundColor = '#ffffff';
-        sendBtn.onclick = sendMessage;
+        restoreSendBtn();
       }
       return;
     }
@@ -986,13 +998,7 @@
     const { loadingDiv, countdownInterval } = showLoadingWithCounter();
 
     abortController = new AbortController();
-    sendBtn.innerHTML = `
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M6 18L18 6M6 6l12 12"/>
-      </svg>
-    `;
-    sendBtn.style.backgroundColor = '#FF0000E6';
-    sendBtn.onclick = cancelRequest;
+    showCancelSendBtn();
 
     try {
       const conversationMessages = chat.messages.map((msg) => ({
@@ -1103,13 +1109,7 @@
         displayMessage('Error: No se pudo conectar con el servidor.', false);
       }
     } finally {
-      sendBtn.innerHTML = `
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
-        </svg>
-      `;
-      sendBtn.style.backgroundColor = '#ffffff';
-      sendBtn.onclick = sendMessage;
+      restoreSendBtn();
       clearInterval(countdownInterval);
       loadingDiv.remove();
       document.querySelectorAll('.file-preview').forEach((p) => p.remove());
@@ -1123,12 +1123,7 @@
 
     const { loadingDiv, countdownInterval } = showLoadingWithCounter();
     abortController = new AbortController();
-    sendBtn.innerHTML = `
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M6 18L18 6M6 6l12 12"/>
-      </svg>`;
-    sendBtn.style.backgroundColor = '#FF0000E6';
-    sendBtn.onclick = cancelRequest;
+    showCancelSendBtn();
 
     try {
       const conversationMessages = chat.messages.map(msg => ({
@@ -1234,12 +1229,7 @@
         displayMessage('Error: no se pudo obtener la nueva respuesta.', false);
       }
     } finally {
-      sendBtn.innerHTML = `
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
-        </svg>`;
-      sendBtn.style.backgroundColor = '#ffffff';
-      sendBtn.onclick = sendMessage;
+      restoreSendBtn();
       clearInterval(countdownInterval);
       loadingDiv.remove();
     }
@@ -1426,40 +1416,8 @@
     copyButtonContainer.style.display = 'flex';
     copyButtonContainer.style.justifyContent = isUser ? 'flex-end' : 'flex-start';
     copyButtonContainer.style.marginTop = '5px';
-    const copyButton = document.createElement('button');
-    copyButton.className = 'copy-button';
-    copyButton.style.padding = '5px';
-    copyButton.style.backgroundColor = 'transparent';
-    copyButton.style.border = 'none';
-    copyButton.style.cursor = 'pointer';
-    copyButton.style.display = 'flex';
-    copyButton.style.alignItems = 'center';
-    copyButton.innerHTML = `
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
-        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-        <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-      </svg>
-    `;
-    copyButton.addEventListener('click', () => {
-      navigator.clipboard.writeText(content)
-        .then(() => {
-          copyButton.innerHTML = `
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-          `;
-          setTimeout(() => {
-            copyButton.innerHTML = `
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
-                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-              </svg>
-            `;
-          }, 2000);
-        })
-        .catch((err) => console.error('Error al copiar el texto:', err));
-    });
-    copyButtonContainer.appendChild(copyButton);
+    const copyBtn = createCopyButton(content);
+    copyButtonContainer.appendChild(copyBtn);
 
     if (!isUser && content !== "¡Hola! Soy Arex, el asistente de IA de Anuvyx.\n\n¿En qué puedo ayudarte hoy?\n") {
       const reloadButton = document.createElement('button');
@@ -1691,6 +1649,144 @@
 
     document.getElementById('file-upload').addEventListener('change', handleFileUpload);
 
+    async function processFile(file) {
+      const extension = file.name.split('.').pop().toLowerCase();
+
+      const readTextFile = () => {
+        return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            let content = e.target.result;
+            if (extension === 'json') {
+              try {
+                const parsed = JSON.parse(content);
+                content = JSON.stringify(parsed, null, 2);
+              } catch (error) {
+                console.error("Error al parsear JSON:", error);
+              }
+            }
+            resolve(content);
+          };
+          reader.readAsText(file);
+        });
+      };
+
+      const readDocx = () => {
+        return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const arrayBuffer = e.target.result;
+            mammoth.extractRawText({ arrayBuffer })
+              .then((result) => resolve(result.value))
+              .catch((error) => {
+                console.error("Error al procesar DOCX:", error);
+                resolve('');
+              });
+          };
+          reader.readAsArrayBuffer(file);
+        });
+      };
+
+      const readExcel = () => {
+        return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            let content = '';
+            workbook.SheetNames.forEach((sheetName) => {
+              const worksheet = workbook.Sheets[sheetName];
+              const csv = XLSX.utils.sheet_to_csv(worksheet);
+              content += `--- ${sheetName} ---\n${csv}\n\n`;
+            });
+            resolve(content);
+          };
+          reader.readAsArrayBuffer(file);
+        });
+      };
+
+      const readPdf = () => {
+        return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const typedarray = new Uint8Array(e.target.result);
+            pdfjsLib.getDocument(typedarray).promise.then((pdf) => {
+              let countPromises = [];
+              for (let i = 1; i <= pdf.numPages; i++) {
+                countPromises.push(
+                  pdf.getPage(i).then((page) =>
+                    page.getTextContent().then((textContent) =>
+                      textContent.items.map((item) => item.str).join(' ')
+                    )
+                  )
+                );
+              }
+              Promise.all(countPromises)
+                .then((texts) => resolve(texts.join('\n\n')))
+                .catch((error) => {
+                  console.error("Error al procesar PDF:", error);
+                  resolve('');
+                });
+            });
+          };
+          reader.readAsArrayBuffer(file);
+        });
+      };
+
+      const readImage = () => {
+        return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const imageDataUrl = e.target.result;
+            Tesseract.recognize(imageDataUrl, 'spa')
+              .then(({ data: { text } }) => {
+                Vibrant.from(imageDataUrl).getPalette()
+                  .then((palette) => {
+                    const textColor = palette.Vibrant?.getHex() || '#FFFFFF';
+                    const bgColor = palette.DarkMuted?.getHex() || '#000000';
+                    resolve(`Texto extraído: ${text.trim()}\nColor de texto: ${textColor}\nColor de fondo: ${bgColor}`);
+                  })
+                  .catch((err) => {
+                    console.error("Error al extraer colores:", err);
+                    resolve(`Texto extraído: ${text.trim()}`);
+                  });
+              })
+              .catch((err) => {
+                console.error("Error al procesar imagen:", err);
+                resolve('');
+              });
+          };
+          reader.readAsDataURL(file);
+        });
+      };
+
+      let content = '';
+
+      if (['txt', 'csv', 'tsv', 'json', 'xml'].includes(extension)) {
+        content = await readTextFile();
+      } else if (extension === 'docx') {
+        content = await readDocx();
+      } else if (['xlsx', 'xls'].includes(extension)) {
+        content = await readExcel();
+      } else if (extension === 'pdf') {
+        content = await readPdf();
+      } else if (['png', 'jpg', 'jpeg'].includes(extension)) {
+        const version = document.getElementById('chatHeaderTitle').textContent.trim();
+        if (version === 'AREX') {
+          await showCustomAlert("No es posible subir imágenes en esta versión. Intenta de nuevo en la versión Gold o Deluxe.");
+          return;
+        }
+        content = await readImage();
+      } else {
+        await showCustomAlert(`Tipo de archivo no soportado: ${extension}`);
+        return;
+      }
+
+      if (content) {
+        displayFilePreview(file, content);
+      }
+    }
+
     userInput.addEventListener('paste', (event) => {
       if (event.clipboardData && event.clipboardData.items) {
         const items = event.clipboardData.items;
@@ -1699,103 +1795,8 @@
           if (item.kind === 'file') {
             const file = item.getAsFile();
             if (!file) continue;
-            const extension = file.name.split('.').pop().toLowerCase();
-            if (['txt', 'csv', 'tsv', 'json', 'xml'].includes(extension)) {
-              const reader = new FileReader();
-              reader.onload = function (e) {
-                let content = e.target.result;
-                if (extension === 'json') {
-                  try {
-                    const parsed = JSON.parse(content);
-                    content = JSON.stringify(parsed, null, 2);
-                  } catch (error) {
-                    console.error("Error al parsear JSON:", error);
-                  }
-                }
-                displayFilePreview(file, content);
-              };
-              reader.readAsText(file);
-            } else if (extension === 'docx') {
-              const reader = new FileReader();
-              reader.onload = function (e) {
-                const arrayBuffer = e.target.result;
-                mammoth.extractRawText({ arrayBuffer: arrayBuffer })
-                  .then((result) => {
-                    const content = result.value;
-                    displayFilePreview(file, content);
-                  })
-                  .catch((error) => {
-                    console.error("Error al procesar DOCX:", error);
-                  });
-              };
-              reader.readAsArrayBuffer(file);
-            } else if (['xlsx', 'xls'].includes(extension)) {
-              const reader = new FileReader();
-              reader.onload = function (e) {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, { type: 'array' });
-                let content = '';
-                workbook.SheetNames.forEach((sheetName) => {
-                  const worksheet = workbook.Sheets[sheetName];
-                  const csv = XLSX.utils.sheet_to_csv(worksheet);
-                  content += `--- ${sheetName} ---\n${csv}\n\n`;
-                });
-                displayFilePreview(file, content);
-              };
-              reader.readAsArrayBuffer(file);
-            } else if (extension === 'pdf') {
-              const reader = new FileReader();
-              reader.onload = function (e) {
-                const typedarray = new Uint8Array(e.target.result);
-                pdfjsLib.getDocument(typedarray).promise.then((pdf) => {
-                  let maxPages = pdf.numPages;
-                  let countPromises = [];
-                  for (let i = 1; i <= maxPages; i++) {
-                    countPromises.push(
-                      pdf.getPage(i).then((page) => {
-                        return page.getTextContent().then((textContent) => {
-                          return textContent.items.map((item) => item.str).join(' ');
-                        });
-                      })
-                    );
-                  }
-                  Promise.all(countPromises).then((texts) => {
-                    const content = texts.join('\n\n');
-                    displayFilePreview(file, content);
-                  });
-                }).catch((error) => {
-                  console.error("Error al procesar PDF:", error);
-                });
-              };
-              reader.readAsArrayBuffer(file);
-            } else if (['png', 'jpg', 'jpeg'].includes(extension)) {
-              if (document.getElementById('chatHeaderTitle').textContent.trim() === "AREX") {
-                showCustomAlert("No es posible subir imágenes en esta versión. Intenta de nuevo en la versión Gold o Deluxe.");
-                continue;
-              }              
-              const reader = new FileReader();
-              reader.onload = function (e) {
-                const imageDataUrl = e.target.result;
-                Tesseract.recognize(imageDataUrl, 'spa', { logger: (m) => console.log(m) })
-                  .then(({ data: { text } }) => {
-                    Vibrant.from(imageDataUrl).getPalette()
-                      .then((palette) => {
-                        const textColor = palette.Vibrant ? palette.Vibrant.getHex() : '#FFFFFF';
-                        const bgColor = palette.DarkMuted ? palette.DarkMuted.getHex() : '#000000';
-                        const resultText = `Texto extraído: ${text.trim()}\nColor de texto: ${textColor}\nColor de fondo: ${bgColor}`;
-                        displayFilePreview(file, resultText);
-                      })
-                      .catch((err) => {
-                        console.error("Error al extraer colores:", err);
-                        displayFilePreview(file, `Texto extraído: ${text.trim()}`);
-                      });
-                  })
-                  .catch((error) => {
-                    console.error("Error al procesar imagen:", error);
-                  });
-              };
-              reader.readAsDataURL(file);
-            }
+
+            processFile(file);
           }
         }
       }
@@ -1821,103 +1822,7 @@
           continue;
         }        
         totalSize += file.size;
-        const extension = file.name.split('.').pop().toLowerCase();
-        if (['txt', 'csv', 'tsv', 'json', 'xml'].includes(extension)) {
-          const reader = new FileReader();
-          reader.onload = function (e) {
-            let content = e.target.result;
-            if (extension === 'json') {
-              try {
-                const parsed = JSON.parse(content);
-                content = JSON.stringify(parsed, null, 2);
-              } catch (error) {
-                console.error("Error al parsear JSON:", error);
-              }
-            }
-            displayFilePreview(file, content);
-          };
-          reader.readAsText(file);
-        } else if (extension === 'docx') {
-          const reader = new FileReader();
-          reader.onload = function (e) {
-            const arrayBuffer = e.target.result;
-            mammoth.extractRawText({ arrayBuffer: arrayBuffer })
-              .then((result) => {
-                const content = result.value;
-                displayFilePreview(file, content);
-              })
-              .catch((error) => {
-                console.error("Error al procesar DOCX:", error);
-              });
-          };
-          reader.readAsArrayBuffer(file);
-        } else if (extension === 'xlsx' || extension === 'xls') {
-          const reader = new FileReader();
-          reader.onload = function (e) {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-            let content = '';
-            workbook.SheetNames.forEach((sheetName) => {
-              const worksheet = workbook.Sheets[sheetName];
-              const csv = XLSX.utils.sheet_to_csv(worksheet);
-              content += `--- ${sheetName} ---\n${csv}\n\n`;
-            });
-            displayFilePreview(file, content);
-          };
-          reader.readAsArrayBuffer(file);
-        } else if (extension === 'pdf') {
-          const reader = new FileReader();
-          reader.onload = function (e) {
-            const typedarray = new Uint8Array(e.target.result);
-            pdfjsLib.getDocument(typedarray).promise.then((pdf) => {
-              let maxPages = pdf.numPages;
-              let countPromises = [];
-              for (let i = 1; i <= maxPages; i++) {
-                countPromises.push(
-                  pdf.getPage(i).then((page) => {
-                    return page.getTextContent().then((textContent) => {
-                      return textContent.items.map((item) => item.str).join(' ');
-                    });
-                  })
-                );
-              }
-              Promise.all(countPromises).then((texts) => {
-                const content = texts.join('\n\n');
-                displayFilePreview(file, content);
-              });
-            }).catch((error) => {
-              console.error("Error al procesar PDF:", error);
-            });
-          };
-          reader.readAsArrayBuffer(file);
-        } else if (['png', 'jpg', 'jpeg'].includes(extension)) {
-          if (document.getElementById('chatHeaderTitle').textContent.trim() === "AREX") {
-            showCustomAlert("No es posible subir imágenes en esta versión. Intenta de nuevo en la versión Gold o Deluxe.");
-            continue;
-          }          
-          const reader = new FileReader();
-          reader.onload = function (e) {
-            const imageDataUrl = e.target.result;
-            Tesseract.recognize(imageDataUrl, 'spa', { logger: (m) => console.log(m) })
-              .then(({ data: { text } }) => {
-                Vibrant.from(imageDataUrl).getPalette()
-                  .then((palette) => {
-                    const textColor = palette.Vibrant ? palette.Vibrant.getHex() : '#FFFFFF';
-                    const bgColor = palette.DarkMuted ? palette.DarkMuted.getHex() : '#000000';
-                    const resultText = `Texto extraído: ${text.trim()}\nColor de texto: ${textColor}\nColor de fondo: ${bgColor}`;
-                    displayFilePreview(file, resultText);
-                  })
-                  .catch((err) => {
-                    console.error("Error al extraer colores:", err);
-                    displayFilePreview(file, `Texto extraído: ${text.trim()}`);
-                  });
-              })
-              .catch((error) => {
-                console.error("Error al procesar imagen:", error);
-              });
-          };
-          reader.readAsDataURL(file);        
-        }
+        await processFile(file);
       }
     }
 

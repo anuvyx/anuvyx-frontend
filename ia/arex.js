@@ -1514,139 +1514,103 @@
 
     document.getElementById('file-upload').addEventListener('change', handleFileUpload);
 
-    async function processFile(file) {
+    async function readFileByType(file) {
       const extension = file.name.split('.').pop().toLowerCase();
 
-      const readTextFile = () => {
-        return new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            let content = e.target.result;
-            if (extension === 'json') {
-              try {
-                const parsed = JSON.parse(content);
-                content = JSON.stringify(parsed, null, 2);
-              } catch (error) {
-                console.error("Error al parsear JSON:", error);
-              }
+      const readAsText = () => new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          let content = e.target.result;
+          if (extension === 'json') {
+            try {
+              content = JSON.stringify(JSON.parse(content), null, 2);
+            } catch (e) {
+              console.warn("JSON inválido:", e);
             }
-            resolve(content);
-          };
-          reader.readAsText(file);
-        });
-      };
+          }
+          resolve(content);
+        };
+        reader.readAsText(file);
+      });
 
-      const readDocx = () => {
-        return new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            const arrayBuffer = e.target.result;
-            mammoth.extractRawText({ arrayBuffer })
-              .then((result) => resolve(result.value))
-              .catch((error) => {
-                console.error("Error al procesar DOCX:", error);
-                resolve('');
-              });
-          };
-          reader.readAsArrayBuffer(file);
-        });
-      };
+      const readAsArrayBuffer = () => new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target.result);
+        reader.readAsArrayBuffer(file);
+      });
 
-      const readExcel = () => {
-        return new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-            let content = '';
-            workbook.SheetNames.forEach((sheetName) => {
-              const worksheet = workbook.Sheets[sheetName];
-              const csv = XLSX.utils.sheet_to_csv(worksheet);
-              content += `--- ${sheetName} ---\n${csv}\n\n`;
-            });
-            resolve(content);
-          };
-          reader.readAsArrayBuffer(file);
-        });
-      };
+      switch (extension) {
+        case 'txt':
+        case 'csv':
+        case 'tsv':
+        case 'json':
+        case 'xml':
+          return await readAsText();
 
-      const readPdf = () => {
-        return new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            const typedarray = new Uint8Array(e.target.result);
-            pdfjsLib.getDocument(typedarray).promise.then((pdf) => {
-              let countPromises = [];
-              for (let i = 1; i <= pdf.numPages; i++) {
-                countPromises.push(
-                  pdf.getPage(i).then((page) =>
-                    page.getTextContent().then((textContent) =>
-                      textContent.items.map((item) => item.str).join(' ')
-                    )
-                  )
-                );
-              }
-              Promise.all(countPromises)
-                .then((texts) => resolve(texts.join('\n\n')))
-                .catch((error) => {
-                  console.error("Error al procesar PDF:", error);
-                  resolve('');
-                });
-            });
-          };
-          reader.readAsArrayBuffer(file);
-        });
-      };
-
-      const readImage = () => {
-        return new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            const imageDataUrl = e.target.result;
-            Tesseract.recognize(imageDataUrl, 'spa')
-              .then(({ data: { text } }) => {
-                Vibrant.from(imageDataUrl).getPalette()
-                  .then((palette) => {
-                    const textColor = palette.Vibrant?.getHex() || '#FFFFFF';
-                    const bgColor = palette.DarkMuted?.getHex() || '#000000';
-                    resolve(`Texto extraído: ${text.trim()}\nColor de texto: ${textColor}\nColor de fondo: ${bgColor}`);
-                  })
-                  .catch((err) => {
-                    console.error("Error al extraer colores:", err);
-                    resolve(`Texto extraído: ${text.trim()}`);
-                  });
-              })
-              .catch((err) => {
-                console.error("Error al procesar imagen:", err);
-                resolve('');
-              });
-          };
-          reader.readAsDataURL(file);
-        });
-      };
-
-      let content = '';
-
-      if (['txt', 'csv', 'tsv', 'json', 'xml'].includes(extension)) {
-        content = await readTextFile();
-      } else if (extension === 'docx') {
-        content = await readDocx();
-      } else if (['xlsx', 'xls'].includes(extension)) {
-        content = await readExcel();
-      } else if (extension === 'pdf') {
-        content = await readPdf();
-      } else if (['png', 'jpg', 'jpeg'].includes(extension)) {
-        const version = document.getElementById('chatHeaderTitle').textContent.trim();
-        if (version === 'AREX') {
-          await showCustomAlert("No es posible subir imágenes en esta versión. Intenta de nuevo en la versión Gold o Deluxe.");
-          return;
+        case 'docx': {
+          const buffer = await readAsArrayBuffer();
+          const result = await mammoth.extractRawText({ arrayBuffer: buffer }).catch(() => ({ value: '' }));
+          return result.value;
         }
-        content = await readImage();
-      } else {
-        await showCustomAlert(`Tipo de archivo no soportado: ${extension}`);
-        return;
-      }
 
+        case 'xlsx':
+        case 'xls': {
+          const buffer = await readAsArrayBuffer();
+          const workbook = XLSX.read(new Uint8Array(buffer), { type: 'array' });
+          return workbook.SheetNames.map(sheet =>
+            `--- ${sheet} ---\n${XLSX.utils.sheet_to_csv(workbook.Sheets[sheet])}`
+          ).join('\n\n');
+        }
+
+        case 'pdf': {
+          const buffer = await readAsArrayBuffer();
+          const pdf = await pdfjsLib.getDocument(new Uint8Array(buffer)).promise;
+          const pages = await Promise.all(
+            Array.from({ length: pdf.numPages }, (_, i) =>
+              pdf.getPage(i + 1).then(page =>
+                page.getTextContent().then(text =>
+                  text.items.map(item => item.str).join(' ')
+                )
+              )
+            )
+          );
+          return pages.join('\n\n');
+        }
+
+        case 'png':
+        case 'jpg':
+        case 'jpeg': {
+          const version = document.getElementById('chatHeaderTitle').textContent.trim();
+          if (version === 'AREX') {
+            await showCustomAlert("No es posible subir imágenes en esta versión. Intenta de nuevo en la versión Gold o Deluxe.");
+            return '';
+          }
+
+          return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              const dataUrl = e.target.result;
+              Tesseract.recognize(dataUrl, 'spa')
+                .then(({ data: { text } }) =>
+                  Vibrant.from(dataUrl).getPalette().then(palette => {
+                    const fg = palette.Vibrant?.getHex() || '#FFF';
+                    const bg = palette.DarkMuted?.getHex() || '#000';
+                    resolve(`Texto extraído: ${text.trim()}\nColor de texto: ${fg}\nColor de fondo: ${bg}`);
+                  }).catch(() => resolve(`Texto extraído: ${text.trim()}`))
+                ).catch(() => resolve(''));
+            };
+            reader.readAsDataURL(file);
+          });
+        }
+
+        default:
+          await showCustomAlert(`Tipo de archivo no soportado: ${extension}`);
+          return '';
+      }
+    }
+
+    async function processFile(file) {
+      const content = await readFileByType(file);
       if (content) {
         displayFilePreview(file, content);
       }

@@ -12,6 +12,7 @@
   --color-chat-input-bg: #313335;
   --color-white: #ffffff;
   --color-red: rgba(255, 0, 0, 0.9);
+  --color-light-red: rgba(255, 0, 0, 0.4);
   --color-blue: #0071e3;
   --color-gold: #ffaa00; /* Antes #d4a944 */
   --color-menu-bg: #111;
@@ -240,7 +241,6 @@ body {
   transition: transform 0.3s ease;
   background: var(--color-gold);
   color: var(--color-black-text);
-  border-radius: 50%;
 }
 
 .header-title-menu {
@@ -269,17 +269,6 @@ body {
 
 .header-title-menu .active div {
   color: var(--color-black-text) !important;
-}
-
-.title-control-wrapper.active-title {
-  background: var(--color-gold);
-  color: var(--color-black-text);
-  border: 1px solid var(--color-gold);
-}
-
-.title-control-wrapper.active-title #chatHeaderTitle,
-.title-control-wrapper.active-title #headerTitleToggleBtn {
-  color: var(--color-black-text);
 }
 
 /* HISTORIAL Y ACCIONES DE CHAT */
@@ -312,42 +301,39 @@ body {
 .new-chat-btn,
 .delete-chats-btn {
   background: none;
-  border: none;
   padding: 0.8rem;
   border-radius: 50%;
   cursor: pointer;
-  transition: all var(--transition-speed);
   display: flex;
   align-items: center;
   justify-content: center;
+  border: 1px solid var(--color-border);
+  color: var(--color-white);
+  transition: background 0.2s;
 }
 
 .new-chat-btn {
-  background: var(--color-white);
-  color: var(--color-bg);
+  background: none;
+  color: var(--color-white);
+  border: 1px solid var(--color-gold);
 }
 
 .new-chat-btn:hover {
-  background: rgba(209, 209, 209, 0.6);
-  transform: scale(1.1);
-}
-
-.new-chat-btn:active {
-  transform: scale(0.9);
+  background: var(--color-gold);
+  color: var(--color-black-text);
+  border: 1px solid var(--color-gold);
 }
 
 .delete-chats-btn {
   background: var(--color-red);
-  color: var(--color-bg);
+  color: var(--color-black-text);
+  border: 1px solid var(--color-red);
 }
 
 .delete-chats-btn:hover {
-  background: rgba(255, 0, 0, 0.7);
-  transform: scale(1.1);
-}
-
-.delete-chats-btn:active {
-  transform: scale(0.9);
+  background: var(--color-light-red);
+  color: var(--color-white);
+  border: 1px solid var(--color-light-red);
 }
 
 .new-chat-btn svg,
@@ -539,7 +525,7 @@ body {
   white-space: nowrap;
   border-radius: 50px;
   cursor: pointer;
-  padding: 0 1rem;
+  padding: 0 0.5rem 0 1rem;
   border: 1px solid var(--color-border);
   color: var(--color-white);
   transition: background 0.2s;
@@ -556,6 +542,16 @@ body {
   color: var(--color-black-text);
 }
 
+.title-control-wrapper.active-title {
+  background: var(--color-gold);
+  color: var(--color-black-text);
+  border: 1px solid var(--color-gold);
+}
+
+.title-control-wrapper.active-title #chatHeaderTitle {
+  color: var(--color-black-text);
+}
+
 .chat-header h1 {
   font-size: 2rem;
   letter-spacing: 4px;
@@ -566,8 +562,8 @@ body {
 .chat-messages {
   height: calc(100vh - 237px);
   overflow-y: auto;
-  padding-right: 16rem;
-  padding-left: 14rem;
+  padding-right: 26rem;
+  padding-left: 24rem;
   scrollbar-width: thin;
   scrollbar-color: var(--color-border) var(--color-bg);
 }
@@ -679,7 +675,6 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 0.5rem;
   position: fixed;
   bottom: 0;
   width: calc(100% - 260px - 4rem);
@@ -697,7 +692,7 @@ body {
 .chat-input {
   display: flex;
   background: var(--color-chat-input-bg);
-  width: 60%;
+  width: 45%;
   border: 1px solid var(--color-border);
   color: var(--color-text);
   border-radius: 12px;
@@ -1309,7 +1304,7 @@ pre code .token.property {
 #customPromptCancel,
 #customDeleteYes {
   background: var(--color-red);
-  color: var(--color-white);
+  color: var(--color-black-text);
   border: 1px solid var(--color-red);
 }
 
@@ -1323,9 +1318,9 @@ pre code .token.property {
 
 #customPromptCancel:hover,
 #customDeleteYes:hover {
-  background: rgba(255, 0, 0, 0.7);
-  border: 1px solid rgba(255, 0, 0, 0.7);
-  color: var(--color-black-text);
+  background: var(--color-light-red);
+  border: 1px solid var(--color-red);
+  color: var(--color-white);
 }
 
 /* RESPONSIVE DESIGN */

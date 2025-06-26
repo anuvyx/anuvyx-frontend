@@ -1736,5 +1736,9 @@
     });
   };
 
+  document.querySelector('.chat-search-btn').addEventListener('click', () => {
+    document.getElementById('chatSearchInput').focus();
+  });
+
   init();
 })();

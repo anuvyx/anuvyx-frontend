@@ -180,13 +180,16 @@
   }
 
   // MENÚ DE CAMBIO DE TÍTULO
-  document.getElementById('headerTitleToggleBtn').addEventListener('click', function (e) {
+  document.getElementById('titleControlWrapper').addEventListener('click', function (e) {
     e.stopPropagation();
-    this.classList.toggle('rotated');
+    const toggleBtn = document.getElementById('headerTitleToggleBtn');
+    toggleBtn.classList.toggle('rotated');
+    this.classList.add('active-title');
     let menu = document.getElementById('headerTitleMenu');
     if (menu) {
       menu.remove();
-      this.classList.remove('rotated');
+      toggleBtn.classList.remove('rotated');
+      this.classList.remove('active-title');
       return;
     }
     menu = document.createElement('div');
@@ -249,7 +252,8 @@
           document.getElementById('chatHeaderTitle').textContent = title;
           localStorage.setItem('chatHeaderTitle', title);
           menu.remove();
-          document.getElementById('headerTitleToggleBtn').classList.remove('rotated');
+          toggleBtn.classList.remove('rotated');
+          document.getElementById('titleControlWrapper').classList.remove('active-title');
         });
       } else {
         container.addEventListener('click', function (e) {
@@ -301,6 +305,8 @@
     document.addEventListener('click', function closeMenu(event) {
       if (!menu.contains(event.target) && event.target !== document.getElementById('headerTitleToggleBtn')) {
         menu.remove();
+        document.getElementById('headerTitleToggleBtn').classList.remove('rotated');
+        document.getElementById('titleControlWrapper').classList.remove('active-title');
         document.removeEventListener('click', closeMenu);
       }
     });
@@ -938,6 +944,12 @@
     });
   }
 
+  function updateSearchAvailability() {
+    const hasFiles = document.querySelectorAll('.file-preview').length > 0;
+    searchWebBtn.disabled = hasFiles;
+    searchWebBtn.classList.toggle('disabled', hasFiles);
+  }
+
   // ENVÍO DE MENSAJES Y RESPUESTA DE LA API
   const sendMessage = async () => {
     const userText = userInput.value.trim();
@@ -1127,9 +1139,10 @@
       timestamp: Date.now()
     });
     touchCurrentChat();      
-  saveChatsToStorage();
+    saveChatsToStorage();
     userInput.value = '';
     document.querySelectorAll('.file-preview').forEach((p) => p.remove());
+    updateSearchAvailability();
     displayMessage(displayMessageContent, true);
     autoResizeTextarea();
 
@@ -1176,6 +1189,7 @@
       clearInterval(countdownInterval);
       loadingDiv.remove();
       document.querySelectorAll('.file-preview').forEach((p) => p.remove());
+      updateSearchAvailability();
     }
   };
 
@@ -1485,8 +1499,11 @@
 
     window.addEventListener('load', async () => {
       const sidebarState = localStorage.getItem('sidebarState');
-      if (sidebarState === 'hidden' && window.innerWidth >= 769) {
-        chatSidebar.classList.add('hidden');
+
+      if (window.innerWidth < 769) {
+        chatSidebar.classList.add('hidden'); 
+      } else if (sidebarState === 'hidden') {
+        chatSidebar.classList.add('hidden'); 
       }
 
       if (localStorage.getItem('isLoggedIn') === 'true') {

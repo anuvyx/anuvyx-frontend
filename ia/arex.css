@@ -229,17 +229,10 @@ body {
   border: none;
   cursor: pointer;
   padding: 0.3rem;
-  margin-left: 0.5rem;
   display: flex;
   color: var(--color-border);
   align-items: center;
   transition: transform 0.3s ease;
-}
-
-.header-title-toggle-btn:hover {
-  background: var(--color-gold);
-  color: var(--color-black-text);
-  border-radius: 50%;
 }
 
 .header-title-toggle-btn.rotated {
@@ -255,11 +248,10 @@ body {
   border: 1px solid var(--color-menu-border);
   border-radius: 8px;
   padding: 0.5rem 0;
-  margin-top: 8px;
+  margin-top: 20px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
   width: 280px;
   z-index: 1000;
-  position: absolute;
 }
 
 .header-title-menu > div {
@@ -279,8 +271,15 @@ body {
   color: var(--color-black-text) !important;
 }
 
-.logo-title-container {
-  position: relative;
+.title-control-wrapper.active-title {
+  background: var(--color-gold);
+  color: var(--color-black-text);
+  border: 1px solid var(--color-gold);
+}
+
+.title-control-wrapper.active-title #chatHeaderTitle,
+.title-control-wrapper.active-title #headerTitleToggleBtn {
+  color: var(--color-black-text);
 }
 
 /* HISTORIAL Y ACCIONES DE CHAT */
@@ -498,12 +497,11 @@ body {
 /* ENCABEZADO DEL CHAT */
 .chat-header {
   border-bottom: 1px solid var(--color-gold);
-  margin-bottom: 0.5rem;
-  padding-bottom: 0.8rem;
+  margin-bottom: 0.4rem;
+  padding-bottom: 0.7rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
   text-align: center;
 }
 
@@ -514,16 +512,48 @@ body {
 }
 
 .arex-logo {
-  height: 40px;
-  width: 40px;
+  height: 36px;
+  width: 36px;
+  margin: 3px 0 3px 0
+}
+
+.arex-logo:hover {
+  background: var(--color-gray-hover);
+  border-radius: 25%;
 }
 
 .logo-title-container {
   display: flex;
+  position: relative;
   align-items: center;
   gap: 0.5rem;
   flex-grow: 1;
   justify-content: center;
+}
+
+.title-control-wrapper {
+  display: flex;
+  align-items: center;
+  max-width: 400px;
+  overflow: hidden;
+  white-space: nowrap;
+  border-radius: 50px;
+  cursor: pointer;
+  padding: 0 1rem;
+  border: 1px solid var(--color-border);
+  color: var(--color-white);
+  transition: background 0.2s;
+}
+
+.title-control-wrapper:hover {
+  background: var(--color-gold);
+  color: var(--color-black-text);
+  border: 1px solid var(--color-gold);
+}
+
+.title-control-wrapper:hover #chatHeaderTitle,
+.title-control-wrapper:hover #headerTitleToggleBtn {
+  color: var(--color-black-text);
 }
 
 .chat-header h1 {
@@ -972,7 +1002,7 @@ a {
   height: 100%;
   background-color: var(--color-bg);
   box-shadow: -2px 0 5px rgba(0, 0, 0, 0.3);
-  padding: 2rem 1rem;
+  padding: 0.5rem 1rem 2rem 1rem;
   transition: right 0.3s ease;
   overflow-y: auto;
   z-index: 1000;
@@ -1379,6 +1409,20 @@ pre code .token.property {
   
   pre {
     font-size: 0.9em;
+  }
+
+  .title-control-wrapper {
+    font-size: 0.9rem;
+    max-width: 250px;
+    padding: 0 0.6rem;
+  }
+
+  #chatHeaderTitle {
+    font-size: 1.1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
   }
 
   #headerTitleMenu {

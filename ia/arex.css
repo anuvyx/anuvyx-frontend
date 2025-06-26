@@ -558,6 +558,7 @@ body {
   letter-spacing: 4px;
   color: var(--color-text);
   font-weight: bold;
+  font-style: italic;
   text-transform: uppercase;
   text-decoration: none;
   transition: opacity 0.3s;

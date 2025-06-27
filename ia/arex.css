@@ -15,6 +15,7 @@
   --color-light-red: rgba(255, 0, 0, 0.4);
   --color-blue: #0071e3;
   --color-gold: #ffaa00; /* Antes #d4a944 */
+  --color-light-gold: rgba(255, 170, 0, 0.2);
   --color-menu-bg: #111;
   --color-menu-border: #333;
   --color-hover-dark: #40414491;
@@ -313,14 +314,14 @@ body {
 }
 
 .new-chat-btn {
-  background: none;
-  color: var(--color-white);
+  background: var(--color-gold);
+  color: var(--color-black-text);
   border: 1px solid var(--color-gold);
 }
 
 .new-chat-btn:hover {
-  background: var(--color-gold);
-  color: var(--color-black-text);
+  background: var(--color-light-gold);
+  color: var(--color-white);
   border: 1px solid var(--color-gold);
 }
 
@@ -506,6 +507,13 @@ body {
 .arex-logo:hover {
   background: var(--color-gray-hover);
   border-radius: 25%;
+}
+
+.copy-button:hover,
+.reload-button:hover,
+.edit-button:hover {
+  background: var(--color-gray-hover) !important;
+  border-radius: 25% !important;
 }
 
 .logo-title-container {
@@ -1167,13 +1175,14 @@ th, td {
   background: transparent;
   border: none;
   cursor: pointer;
-  padding: 0;
+  padding: 0.15rem 0.18rem 0.15rem 0.1rem;
   margin: 0;
   transition: opacity 0.3s ease;
 }
 
 .copy-icon:hover {
-  opacity: 0.7;
+  background: var(--color-gray-hover);
+  border-radius: 25%;
 }
 
 pre.line-numbers[class*="language-"] {

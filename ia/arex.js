@@ -618,6 +618,53 @@
     return copyButton;
   }
 
+  // Reenviar mensaje luego de editarlo
+  async function resendAfterEdit() {
+    window.reasoningContainer = null;
+    const chat = chats.find(c => c.id === currentChatId);
+    if (!chat) return;
+
+    const { loadingDiv, countdownInterval } = showLoadingWithCounter();
+    abortController = new AbortController();
+    showCancelSendBtn();
+
+    try {
+      const conversationMessages = chat.messages.map(msg => ({
+        role: msg.isUser ? 'user' : 'assistant',
+        content: msg.content
+      }));
+
+      const response = await fetch('https://arex-backend.vercel.app/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: conversationMessages,
+          chatHeaderTitle: document.getElementById('chatHeaderTitle').textContent
+        }),
+        signal: abortController.signal
+      });
+
+      const botMessageDiv = document.createElement('div');
+      botMessageDiv.className = 'message bot-message';
+      chatMessages.appendChild(botMessageDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      const reader = response.body.getReader();
+      await streamBotResponse({ reader, chat, chatMessages, chatHeaderTitle: document.getElementById('chatHeaderTitle').textContent });
+
+      saveChatsToStorage();
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        console.error('Error al reenviar tras edición:', err);
+        displayMessage('Error: no se pudo obtener la nueva respuesta.', false);
+      }
+    } finally {
+      restoreSendBtn();
+      clearInterval(countdownInterval);
+      loadingDiv.remove();
+    }
+  }
+
   function createReloadButton(rawContent) {
     const reloadButton = document.createElement('button');
     reloadButton.className = 'reload-button';
@@ -642,14 +689,32 @@
     reloadButton.addEventListener('click', () => {
       const chat = chats.find(c => c.id === currentChatId);
       if (!chat) return;
-      const lastBotIndex = [...chat.messages].reverse().findIndex(m => !m.isUser && m.content === rawContent);
-      if (lastBotIndex !== -1) {
-        const trueIndex = chat.messages.length - 1 - lastBotIndex;
-        chat.messages = chat.messages.slice(0, trueIndex);
-        saveChatsToStorage();
-        loadChatMessages();
-        resendAfterEdit();
+
+      /* 1️⃣ Localiza la respuesta del bot que quieres quitar */
+      const revIndex = [...chat.messages]
+          .reverse()
+          .findIndex(m => !m.isUser && !m.isReasoning && m.content === rawContent);
+
+      if (revIndex === -1) return;
+
+      /* 2️⃣ Calcula su índice real en el array original */
+      let cutAt = chat.messages.length - 1 - revIndex;
+
+      /* 3️⃣ Retrocede sobre todos los mensajes de Pensamiento que estén justo antes */
+      while (cutAt > 0 && chat.messages[cutAt - 1].isReasoning) {
+        cutAt--;
       }
+
+      /* 4️⃣ Elimina respuesta + pensamiento */
+      chat.messages = chat.messages.slice(0, cutAt);
+      saveChatsToStorage();
+      loadChatMessages();
+
+      /* 5️⃣ Asegúrate de que el próximo streaming cree un bloque nuevo */
+      window.reasoningContainer = null;
+
+      /* 6️⃣ Vuelve a pedir la respuesta */
+      resendAfterEdit();
     });
 
     return reloadButton;
@@ -1192,52 +1257,6 @@
       updateSearchAvailability();
     }
   };
-
-  // Reenviar mensaje luego de editarlo
-  async function resendAfterEdit() {
-    const chat = chats.find(c => c.id === currentChatId);
-    if (!chat) return;
-
-    const { loadingDiv, countdownInterval } = showLoadingWithCounter();
-    abortController = new AbortController();
-    showCancelSendBtn();
-
-    try {
-      const conversationMessages = chat.messages.map(msg => ({
-        role: msg.isUser ? 'user' : 'assistant',
-        content: msg.content
-      }));
-
-      const response = await fetch('https://arex-backend.vercel.app/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: conversationMessages,
-          chatHeaderTitle: document.getElementById('chatHeaderTitle').textContent
-        }),
-        signal: abortController.signal
-      });
-
-      const botMessageDiv = document.createElement('div');
-      botMessageDiv.className = 'message bot-message';
-      chatMessages.appendChild(botMessageDiv);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-
-      const reader = response.body.getReader();
-      await streamBotResponse({ reader, chat, chatMessages, chatHeaderTitle: document.getElementById('chatHeaderTitle').textContent });
-
-      saveChatsToStorage();
-    } catch (err) {
-      if (err.name !== 'AbortError') {
-        console.error('Error al reenviar tras edición:', err);
-        displayMessage('Error: no se pudo obtener la nueva respuesta.', false);
-      }
-    } finally {
-      restoreSendBtn();
-      clearInterval(countdownInterval);
-      loadingDiv.remove();
-    }
-  }
 
   // CANCELAR SOLICITUD A LA API
   const cancelRequest = () => {

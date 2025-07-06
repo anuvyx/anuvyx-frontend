@@ -1689,6 +1689,7 @@
         totalSize += file.size;
         await processFile(file);
       }
+      event.target.value = '';
     }
 
     function displayFilePreview(file, content) {

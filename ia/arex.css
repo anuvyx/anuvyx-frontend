@@ -653,6 +653,28 @@ body {
   align-items: center;
 }
 
+/* chat-messages dinámico dependiendo del tamaño de la pantalla */
+@media (max-width: 1400px) {
+  .chat-messages {
+    padding-left: 16rem;
+    padding-right: 18rem;
+  }
+}
+
+@media (max-width: 1200px) {
+  .chat-messages {
+    padding-left: 10rem;
+    padding-right: 12rem;
+  }
+}
+
+@media (max-width: 1000px) {
+  .chat-messages {
+    padding-left: 4rem;
+    padding-right: 4rem;
+  }
+}
+
 /* ---------- PENSAMIENTO ---------- */
 .reasoning-message {
   background-color: #1f1f1f;

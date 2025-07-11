@@ -576,8 +576,8 @@ body {
 .chat-messages {
   height: calc(100vh - 237px);
   overflow-y: auto;
-  padding-right: 26rem;
-  padding-left: 24rem;
+  padding-left:  clamp(1rem, 12vw, 24rem);
+  padding-right: clamp(1rem, 13vw, 26rem);
   scrollbar-width: thin;
   scrollbar-color: var(--color-border) var(--color-bg);
 }

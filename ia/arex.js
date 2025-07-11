@@ -522,7 +522,7 @@
 
   const createNewChat = () => {
     currentChatId = Date.now().toString();
-    const welcomeMessage = "¡Hola! Soy Arex, el asistente de IA de Anuvyx.\n\n¿En qué puedo ayudarte hoy?\n";
+    const welcomeMessage = "¡Hola! Soy Arex, la IA de Anuvyx.\n\n¿En qué puedo ayudarte hoy?\n";
     chats.push({
       id: currentChatId,
       timestamp: Date.now(),
@@ -758,7 +758,7 @@
     const copyBtn = createCopyButton(rawContent);
     copyButtonContainer.appendChild(copyBtn);
 
-    if (!isUser && rawContent !== "¡Hola! Soy Arex, el asistente de IA de Anuvyx.\n\n¿En qué puedo ayudarte hoy?\n") {
+    if (!isUser && rawContent !== "¡Hola! Soy Arex, la IA de Anuvyx.\n\n¿En qué puedo ayudarte hoy?\n") {
       copyButtonContainer.appendChild(createReloadButton(rawContent));
     }
 
@@ -1367,7 +1367,7 @@
     const copyBtn = createCopyButton(content);
     copyButtonContainer.appendChild(copyBtn);
 
-    if (!isUser && content !== "¡Hola! Soy Arex, el asistente de IA de Anuvyx.\n\n¿En qué puedo ayudarte hoy?\n") {
+    if (!isUser && content !== "¡Hola! Soy Arex, la IA de Anuvyx.\n\n¿En qué puedo ayudarte hoy?\n") {
       copyButtonContainer.appendChild(createReloadButton(rawContent));
     }
 
